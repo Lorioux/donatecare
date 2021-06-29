@@ -1,0 +1,21 @@
+
+.ftheadear {
+    grid-area: hd;
+}
+
+.ftsidebar {
+    grid-area: sd;
+}
+
+.ftcontent {
+    grid-area: main;
+}
+
+.ftfooter {
+    grid-area: ft;
+}
+
+.Wrapper {
+    display: grid;
+    grid-template-columns: (3, 1fr);
+}

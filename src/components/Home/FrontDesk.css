@@ -1,0 +1,78 @@
+:root {
+    --search-input-width: 40%;
+    --search-submit-width: fit-content;
+    --search-orientation: row;
+}
+
+.searchForm {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: var(--search-orientation);
+    width: 100% !important;
+    justify-self: center;
+    /* flex-grow: 1; */
+}
+
+.searchForm > input[type='text'] {
+    height: 36px;
+    background-color: lightgray;
+    flex: var(--search-input-width);
+    padding: 6px;
+    margin: 8px 16px 8px;
+    border-radius: 4px;
+    border: 1px solid lightblue;
+    /* flex-grow: var(--search-in-grow); */
+    
+}
+
+.searchBtn {
+    height: 36px;
+    background-color: lightgray;
+    flex: var(--search-submit-width);
+    padding: 6px;
+    margin: 8px 16px 8px;
+    border-radius: 4px;
+    border: 1px solid lightblue;       
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --search-input-width: 80% !important;
+        --search-submit-width: var(--search-input-width);
+        --search-orientation: column;
+        --search-in-grow: 1;
+    }
+}
+
+.searchBlock {
+    padding: 32px;
+}
+
+.practitionerCard {
+    border: 1px solid lightblue;
+    margin: 6;
+    width: minmax(90px, auto)
+}
+
+.cardDetails {
+    display: "grid";
+    grid-Template-Columns: minmax(128px, 256px);
+    grid-Template-Rows: minmax(128px, auto),
+}
+
+.practitionerSummary {
+    display: flex;
+    flex-Wrap: wrap;
+    flex-Direction: column;
+    justify-Content: left; 
+    padding-Left: 10
+}
+
+.consultMode {
+    display: grid;
+    grid-Template-Columns: minmax(56px, 1fr) auto 1fr auto 1fr;
+    grid-Template-Rows: 56px;
+    border-Top: 1px solid lightblue;
+    font-Size: 16px;
+    padding: 4
+}
