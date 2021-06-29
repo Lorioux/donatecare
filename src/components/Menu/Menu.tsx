@@ -4,6 +4,7 @@ import ReactDOM from "react-dom"
 
 import SignIn from "../Members/SignIn"
 import Memebrs from "../Members/Members"
+import { SearchBlock, CallForAction } from '../Home/FrontDesk'
 
 import './Menu.css'
 
@@ -11,7 +12,9 @@ interface MenuState {
     actionsVisibility: boolean
     actions: JSX.Element | null,
     orientation: string | string,
-    menuIcon: JSX.Element | null
+    menuIcon: JSX.Element | null,
+    subscribe: JSX.Element | null,
+    donate: JSX.Element | null
 }
 
 class Menu extends React.Component<{}, MenuState> {
@@ -24,7 +27,9 @@ class Menu extends React.Component<{}, MenuState> {
             actionsVisibility: true, // When set True it is drawn (Veritally|Horizontally). Otherwise, an Icon(Collapsed)  will be shown            
             orientation: this.Orientation(),
             actions:  this.MenuActions(),
-            menuIcon: this.MenuIcon()
+            menuIcon: this.MenuIcon(),
+            subscribe: null,
+            donate: null
         }
         this.MenuLoadHandler = this.MenuLoadHandler.bind(this),
         this.MenuIcon = this.MenuIcon.bind(this)
@@ -34,6 +39,7 @@ class Menu extends React.Component<{}, MenuState> {
         this.menuActionsClose = this.menuActionsClose.bind(this)
         this.menuActionsDisplay = this.menuActionsDisplay.bind(this)
         this.displaySignInUI = this.displaySignInUI.bind(this)
+        this.SignInUpLinks = this.SignInUpLinks.bind(this)
 
         window.addEventListener("load", this.MenuLoadHandler)
         window.addEventListener('resize', this.WindowResizeHandler)
@@ -53,6 +59,8 @@ class Menu extends React.Component<{}, MenuState> {
                     
                     {this.state.actions}
                     {this.state.menuIcon}
+                    
+                    {/* {this.state.subscribe} */}
                 </menu>
             </div>
         )
@@ -81,7 +89,11 @@ class Menu extends React.Component<{}, MenuState> {
             return "horizontal"
         }
         else {
+            this.setState({
+                subscribe: CallForAction()
+            })
             return "vertical"
+            
         }
     } 
 
@@ -119,7 +131,6 @@ class Menu extends React.Component<{}, MenuState> {
                 </span>
                 <span className="guideLines menuAction">Health <i>Guides</i></span>
                 <this.SignInUpLinks /> 
-                
                 <span className="menuCloseAction menuAction"
                     onClick={(e)=> this.menuActionsClose()}
                 >CLOSE</span>

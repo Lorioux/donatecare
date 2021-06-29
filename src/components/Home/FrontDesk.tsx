@@ -40,9 +40,8 @@ class FrontDesk extends React.Component<{}, FrontDeskState> {
         
         const practitioner = (
             <div className="practitionerCard">
-            
-            
-            <div id="cardDetails" className="practitionerCard">
+                   
+            <div id="cardDetails" className="cardDetails">
                  <img  id="practitionerPhoto" src={logo} ></img>
                  <div className="practitionerSummary">
                     <h5 id="practitionerName" style={{margin: 0}}>Dr. John Doe</h5>

@@ -1,6 +1,6 @@
 import React from "react"
 import {render} from "react-dom"
-
+import "./Footer.css"
 
 interface FootState {
     MessageChannel: JSX.Element | null,
@@ -22,18 +22,24 @@ class Footer extends React.Component<{}, FootState> {
 
     render(){
         return[
-            <div>
+            <div key="channels" style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                flexBasis: "50%",
+                width: "100%"
+            }}>
                 {this.state.MessageChannel}
                 {this.state.PostInfo}
             </div>,
-            <span><i className="fa fa-copyright" aria-hidden="true">DONATECARE, LLC. 2020</i>{" | "} All rights reserved.</span>
+            <span key="copyright"><i className="fa fa-copyright" aria-hidden="true">DONATECARE, LLC. 2020</i>{" | "} All rights reserved.</span>
         ]
     }
 
     Messaging() {
 
         return(
-            <section>
+            <section className="messagingChannel">
                 <span>MESSAGE US</span>
                 <form style={{display: "flex", flexDirection: "column", flexBasis: 36}}>
                 
@@ -51,7 +57,10 @@ class Footer extends React.Component<{}, FootState> {
     
     Posting(){
         return(
-            <section>
+            <section className="postingChannel" style={{
+                display:  "flex",
+                flexDirection: "column"
+            }}>
                 <span>CALL US</span>
                 <span>Donate Care, LLC.</span>
                 <span>Av. Carolina Michaelis, 42</span>

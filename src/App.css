@@ -18,6 +18,11 @@
 .App-header {
   background-color: lightslategray;
   grid-area: hd;
+  /* position: fixed; */
+  left: 0;
+  top: 0;
+  right: 0;
+  margin-bottom: 36px;
 }
 
 .App-link {
@@ -44,6 +49,10 @@ button {
 
 .App-footer {
   grid-area: ft;
+  display: flex;
+  flex-direction: column;
+  background-color: lightsteelblue;
+  padding: 16px 56px 16px;
 }
 
 .App-content {
@@ -51,6 +60,7 @@ button {
   /* display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-areas: var(--main-grid-areas) ; */
+  height: ifr;
 }
 
 .App {

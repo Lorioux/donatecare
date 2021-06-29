@@ -12,6 +12,7 @@ import FrontDesk, { SearchBlock, CallForAction } from './components/Home/FrontDe
 import Footer from './components/Footer/Footer'
 
 const App = () => {
+  
   return (
     <div className="App">
       <header className="App-header">
@@ -29,15 +30,18 @@ const App = () => {
           <Router>
           <Switch>
             <Route exact path="/" component={FrontDesk} />
-            <Route exact path="/joinUs" component={Members} />
-              
+            <Route exact path="/subscribe" component={Members} />
+            <Route exact path="/signin" component={Members} />
+            <Route exact path="/donate" component={Members} />
+            <Route exact path="/tryforfree" component={Members} />
+            <Route exact path="/practitioners" component={Members} />
           </Switch>
           </Router>
         </React.Fragment>
       </main>
       <div className="App-sidebar"></div>
       <footer className="App-footer">
-
+        <Footer ></Footer>
       </footer>
     </div>
   )
