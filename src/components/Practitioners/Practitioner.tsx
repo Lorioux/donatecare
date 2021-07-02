@@ -1,11 +1,12 @@
-import React, { useState } from "react"
+import React from "react"
 import { render } from "react-dom"
 
 
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import { faCalendarWeek, faRoute, faVideo } from '@fortawesome/free-solid-svg-icons'
 
-import Dialog, { Button } from "@material-ui/core"
+import { Button, createStyles, makeStyles, Theme} from "@material-ui/core"
+
 
 import "./Calendar.css"
 import "./Practitioner.css"
@@ -14,7 +15,6 @@ import Booking from "../Booking/BookNow"
 
 import logo from "../../logo.svg"
 import { any, string } from "prop-types"
-import { withStyles } from "@material-ui/styles"
 
 
 interface PractitionerState {
@@ -35,6 +35,14 @@ interface PractitionerState {
     bookingDlg: JSX.Element | null,
 
 }
+
+const useStyles = makeStyles((theme: Theme) => {
+    createStyles({
+        title: {
+
+        }
+    })
+})
 
 class Practitioner extends React.Component<{}, PractitionerState>{
     constructor(props: any){
@@ -104,20 +112,13 @@ class Practitioner extends React.Component<{}, PractitionerState>{
             const  booking = <Booking 
                                 Open={true} 
                                 DoctorFullname="Dr. John Doe"
-                                DoctorIdentification="string"
-                                DoctorSpeciality="string"
+                                DoctorIdentification="Av.  Carolina Michaelis 49"
+                                DoctorSpeciality="Nutritionist"
                                 ConsultationDate={new Date()}
                                 BeneficiaryFullName="string"
                                 BeneficiaryFiscalIdentityNumber="string" />
             
-            this.setState({bookingDlg: booking})
-                                // if (this.state.bookingDlg === null) {
-            //     this.setState({bookingDlg: booking})
-            // }
-            // else{
-            //     render(this.state.bookingDlg, document.querySelector("main"))
-            // }
-            
+            this.setState({bookingDlg: booking})            
         }
 
         const licenseInfo = (
@@ -128,10 +129,12 @@ class Practitioner extends React.Component<{}, PractitionerState>{
                         columnGap: 16, 
                         marginTop: 16}}>
                     <Button
+                        style={{
+                            backgroundColor: "lightskyblue",
+                            fontWeight: 700,
+                            color: "lightslategray"
+                        }}
                         onClick={(e) => HandleBooking(e)}>
-                    {/* <span className="bookNowBtn" 
-                        
-                        ></span> */}
                         BOOK NOW
                     </Button>    
                     <FontAwesomeIcon 
