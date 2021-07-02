@@ -6,6 +6,9 @@ import SignIn from "../Members/SignIn"
 import Memebrs from "../Members/Members"
 import { SearchBlock, CallForAction } from '../Home/FrontDesk'
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faStethoscope, faUnlock, faRobot } from "@fortawesome/free-solid-svg-icons"
+
 import './Menu.css'
 
 interface MenuState {
@@ -41,15 +44,16 @@ class Menu extends React.Component<{}, MenuState> {
         this.displaySignInUI = this.displaySignInUI.bind(this)
         this.SignInUpLinks = this.SignInUpLinks.bind(this)
 
-        window.addEventListener("load", this.MenuLoadHandler)
+        
         window.addEventListener('resize', this.WindowResizeHandler)
     }
 
     render() {
+        window.addEventListener("load", this.MenuLoadHandler)
         return (
             <div className="menuBlock">
                 <h1 className="logo" style={{
-                        color: "skyblue"
+                        color: "lightskyblue"
                     }}
                     onClick={()=>{window.location.href = "/"}}
                 >
@@ -85,7 +89,7 @@ class Menu extends React.Component<{}, MenuState> {
 
     Orientation = () => { 
         var width = window.screen.width
-        if (600 <= width  ){
+        if (width >= 600 ){
             return "horizontal"
         }
         else {
@@ -98,6 +102,7 @@ class Menu extends React.Component<{}, MenuState> {
     } 
 
     MenuLoadHandler() {
+        console.log(window.screen.width)
         if (this.state.orientation == "vertical"){
             this.setState({
                 menuIcon: this.MenuIcon(),
@@ -126,10 +131,18 @@ class Menu extends React.Component<{}, MenuState> {
         return (
             <div className="menuActions" style={{color: "whitesmoke"}}> 
                 <span className="demoCall menuAction">
-                    <em><strong>Doctor?</strong></em>
-                    <i style={{marginLeft:"2px"}}>Try for free</i>
+                    <i><FontAwesomeIcon icon={faStethoscope} style={{
+                        color: "whitesmoke", marginRight: 2
+                    }}/>
+                    <em><strong>Doctor?</strong></em></i>
+                    <i style={{marginLeft:"2px", fontSize: 14}}>Donate your time</i>
                 </span>
-                <span className="guideLines menuAction">Health <i>Guides</i></span>
+                <span className="guideLines menuAction">
+                    <FontAwesomeIcon icon={faRobot} style={{
+                        color: "whitesmoke", marginRight: 2
+                    }}/>
+                    Health <i>Guides</i>
+                </span>
                 <this.SignInUpLinks /> 
                 <span className="menuCloseAction menuAction"
                     onClick={(e)=> this.menuActionsClose()}
@@ -144,12 +157,17 @@ class Menu extends React.Component<{}, MenuState> {
                 style={{
                     backgroundColor: "lightblue",
                 }}>
+
                 <a href="joinUs"><em><strong>JOIN US</strong></em></a>
             </span>
         )
         return(
             <span className="signInAction menuAction">
-                <em>SignIn</em>
+                <FontAwesomeIcon icon={faUnlock} style={{
+                    color: "whitesmoke",
+                    marginRight: 4
+                }} />
+                <em>SignIn</em>                
             </span>
         )
     }

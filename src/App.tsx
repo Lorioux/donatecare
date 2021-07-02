@@ -4,10 +4,9 @@ import {BrowserRouter as Router, Switch, Link,  Route} from "react-router-dom"
 // import logo from './logo.svg'
 import './App.css'
 import Menu from './components/Menu/Menu'
-// import SignIn from './components/Members/SignIn'
-// import FrontDesk from './components/Home/FrontDesk'
 import Members from './components/Members/Members'
 import FrontDesk, { SearchBlock, CallForAction } from './components/Home/FrontDesk'
+import Practitioner from './components/Practitioners/Practitioner'
 
 import Footer from './components/Footer/Footer'
 
@@ -34,15 +33,15 @@ const App = () => {
             <Route exact path="/signin" component={Members} />
             <Route exact path="/donate" component={Members} />
             <Route exact path="/tryforfree" component={Members} />
-            <Route exact path="/practitioners" component={Members} />
+            <Route exact path="/practitioners" component={Practitioner} />
           </Switch>
           </Router>
         </React.Fragment>
       </main>
       <div className="App-sidebar"></div>
-      <footer className="App-footer">
+      {/* <footer className="App-footer">
         <Footer ></Footer>
-      </footer>
+      </footer> */}
     </div>
   )
 }

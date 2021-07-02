@@ -94,6 +94,9 @@ class FrontDesk extends React.Component<{}, FrontDeskState> {
 }
 
 export function SearchBlock() {
+    const specialities = () => {
+
+    }
     return(
         <div style={{
             width: "100% !import",
@@ -102,21 +105,45 @@ export function SearchBlock() {
             justifyContent: "center",
             backgroundColor: "lightslategray",
             color: "whitesmoke",
-            marginBottom: 16,
-            padding: 48,
         }}
         className="searchBlock">
             <h3> Find and book your physician, anytime. </h3>
-            <form className="searchForm">
+            <div style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "center"
+            }}>
+                <form className="searchForm" action="/practitioners">
                 <input 
                     style={{margin: 10,}}
-                    type="text" name="speciality" placeholder="Speciality" />
-                <input  style={{margin: 10, }} type="text" name="location" placeholder="Location"/>
-                <input type="submit" className="searchBtn" style={{
-                    backgroundColor: "lightslategray", margin: 10, height: 52, width: "fit-content", padding: 6, color: "whitesmoke"
-                }} value="SEARCH" />
+                    type="text" name="speciality" placeholder="Speciality" list="specialities"/>
+                <datalist id="specialities">
+                    <option value="Onchologist"></option>
+                    <option value="Pediatrician"></option>
+                    <option value="Nutrician"></option>
+                </datalist>
+                
+                <input  style={{margin: 10, }} type="text" name="location" placeholder="Location" list="cities"/>
+                <datalist id="cities">
+                    <option value="Lisbon"></option>
+                    <option value="Paris"></option>
+                    <option value="Johannesburg"></option>
+                </datalist>
+
+
+                <input type="submit" 
+                    className="searchBtn" 
+                    style={{
+                        backgroundColor: "lightslategray", 
+                        margin: 10, height: 52, width: "fit-content", 
+                        padding: 6, color: "whitesmoke"
+                    }} onClick={(e) => {}}
+                
+                value="SEARCH" />
 
             </form>
+            </div>
         </div>
     )
 }
@@ -142,9 +169,9 @@ export function CallForAction() {
     }
     const callActions = (
         <div style={style}>
-            <i id="subscribe" style={action} onClick={(e)=> onClick(e)} >SUBSCRIBE</i>
+            {/* <i id="subscribe" style={action} onClick={(e)=> onClick(e)} >SUBSCRIBE</i>
             <hr/>
-            <i id="donate" style={action} onClick={(e)=> onClick(e)}>DONATE</i>
+            <i id="donate" style={action} onClick={(e)=> onClick(e)}>DONATE</i> */}
         </div>
     )
     const onClick = (e: any) =>{

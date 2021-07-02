@@ -18,10 +18,10 @@
     --menu-action-max-width: fit-content;
     --menu-action-height: 56px !important;
     --menu-action-border: 4px solid lightskyblue;
-    --menu-action-TRL-border: 1px solid lightslategrey;
+    --menu-action-TRL-border: 1px solid lightskyblue;
     
     --menu-action-margin: 4px !important;
-    --menu-action-padding: 4px !important;
+    --menu-action-padding: 10px !important;
     --menu-icon-visibility: hidden;
     --menu-icon-display: none;
 
@@ -41,6 +41,50 @@
         padding: 0px 0px 56px 0px;
     };
 
+}
+
+@media screen and (min-width: 701px) {
+    :root {
+        --menu-action-width: 30% !important;
+        --menu-action-height: 26px !important;
+        --menu-backgound-color: transparent !important;
+        --menu-action-border: transparent;
+        --menu-action-bradious: 6px 6px 0px 0px;
+        --menu-action-max-width: fit-content;
+        /* MENU ACTIONS */
+        --menu-actions-width: fit-content;
+        --menu-actions-dir: "row";
+
+        --menu-icon-zindex: 0;
+        --menu-actions-zindex: 0;
+
+        /* MENU CLOSE BUTTON */
+        --menu-actions-close: none;
+    }    
+}
+
+@media screen and (max-width: 700px) {
+    :root {
+        --menu-icon-visibility: visible;
+        --menu-actions-visibility: hidden;
+        --menu-action-max-width: 100% !important;
+        --menu-action-width: var(--menu-action-max-width);
+        --menu-action-bradious: 0px;
+        --menu-action-TRL-border: 0px;
+
+        /* Change menu-icon layer index to (2) and menu-actions layer index to -1 */
+        --menu-icon-zindex: 0;
+        --menu-actions-zindex: 0;
+
+        /*Menu icon and actions */
+        --menu-actions-dir: column;
+        --menu-actions-close: inline-block;
+        --menu-actions-min-height: 100vh;
+
+        /* MENU CLOSE BUTTON */
+        --menu-actions-close: inline-block;
+    }
+    
 }
 
 .logo {
@@ -63,7 +107,7 @@
     visibility: var(--menu-block-visibility);
     justify-items: flex-end;
     padding: 26px;
-    background: linear-gradient(var(--menu-block-ginicolor), var(--menu-backgound-color) );
+    background: var(--menu-backgound-color); /*linear-gradient(var(--menu-block-ginicolor),*/
 }
 
 menu {
@@ -80,9 +124,10 @@ menu {
 .menuIcon {
     width: fit-content;
     height: 36px;
-    border: 1px solid lightslategray;
-    background-color: lightgray;
-    justify-items: center;
+    border: 1px solid lightskyblue;
+    color: lightskyblue;
+    background-color: lightslategray;
+    text-align: center;
     margin: var(--menu-action-margin);
     padding: var(--menu-action-padding);
     visibility: var(--menu-icon-visibility);
@@ -112,14 +157,14 @@ menu {
  /** */
     /* width:var(--menu-action-width); */
     height: var(--menu-action-height);
-    font-size: 24px;
+    font-size: 18px;
     margin: var(--menu-action-margin);
     padding: var(--menu-action-padding);
-    color: darkslategrey;
+    color: whitesmoke;
 }
 
 .menuAction {
-    min-width: minmax(var(--menu-action-min-width), "fit-content");
+    min-width: max-content ; /*minmax(var(--menu-action-min-width), fit-content)*/
     max-width: var(--menu-action-max-width);
     border-bottom: var(--menu-action-border);
     border-top: var(--menu-action-TRL-border);
@@ -128,7 +173,6 @@ menu {
     border-radius: var(--menu-action-bradious);
     justify-self: right;
     padding-top: 10px;
-    
     /* background-color: lightgray; */
 }
 
@@ -137,55 +181,9 @@ menu {
     display: var(--menu-actions-close);
 }
 
-@media screen and (min-width: 601px) {
-    :root {
-        --menu-action-width: 30% !important;
-        --menu-action-height: 26px !important;
-        --menu-backgound-color: transparent !important;
-        --menu-action-border: transparent;
-        --menu-action-bradious: 6px 6px 0px 0px;
-        --menu-action-max-width: fit-content
-        /* MENU ACTIONS */
-        --menu-actions-width: fit-content;
-        --menu-actions-dir: "row"
-
-        --menu-icon-zindex: 0;
-        --menu-actions-zindex: 0;
-
-        /* MENU CLOSE BUTTON */
-        --menu-actions-close: none;
-    }    
-}
-
-@media screen and (max-width: 600px) {
-    :root {
-        --menu-icon-visibility: visible;
-        --menu-actions-visibility: hidden;
-        --menu-action-max-width: 100% !important;
-        --menu-action-width: var(--menu-action-max-width);
-        --menu-action-bradious: 0px;
-        --menu-action-TRL-border: 0px;
-
-        /* Change menu-icon layer index to (2) and menu-actions layer index to -1 */
-        --menu-icon-zindex: 0;
-        --menu-actions-zindex: 0;
-
-        /*Menu icon and actions */
-        --menu-actions-dir: column;
-        --menu-actions-close: inline-blox;
-        --menu-actions-min-height: 100vh;
-
-        /* MENU CLOSE BUTTON */
-        --menu-actions-close: inline-block;
-    }
-    
-}
-
-
 .menuActionsMobile {
     flex-direction: var(--menu-actions-dir);
 }
-
 
 
 @keyframes MenuIconResizing {
