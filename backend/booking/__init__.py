@@ -8,19 +8,19 @@ from werkzeug.utils import redirect
 import sys
 sys.path.append("..")
 
-bookings = blueprints.Blueprint("booking", "booking")
+bookings = blueprints.Blueprint("booking", "booking", url_prefix="/booking")
 
-from booking.models import Appointment
-from registration.models import Beneficiaries
+from backend.booking.models import Appointment
+from backend.registration.models import Beneficiaries
 
 # from backend.databases import retrieve_dbase
 # dbase = retrieve_dbase()
 
 
-@bookings.route('/booking')
+@bookings.route("/")
 def booking():
     appointment = Appointment.query.all()
-    print(appointment[0])
+    print(appointment)
     
     return jsonify({
             "periodFrom":"01/20/2021",

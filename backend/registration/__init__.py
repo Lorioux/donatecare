@@ -1,4 +1,5 @@
-from flask.blueprints import Blueprint, request
+from flask.blueprints import Blueprint
+from flask import request
 
 from flask.json import jsonify
 
@@ -8,9 +9,8 @@ from flask.json import jsonify
 from .models import Beneficiaries
 
 regs = Blueprint(__name__, __name__, static_url_path="/media/uploads/", 
-    static_folder="media/uploads", url_prefix="joinus")
-# with regs.app_context():
-#     initialize_dbase(regs)
+    static_folder="media/uploads", url_prefix="/members")
+
 
 
 @regs.route("/registries")
@@ -29,6 +29,9 @@ def subscribe():
     data = request.args.body
     role = data["role"]
     if role in ["doctor",  "beneficiary", "caregiver"]:
-        process_subscrition(role, data)
-# if __name__ == "__main__":
-#     app.run("0.0.0.0", port=5000, debug=True)
+        handle_subscriptions(role, data)
+
+
+def handle_subscriptions(role, data):
+    if role == "doctor":
+        doctor = data
