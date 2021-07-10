@@ -1,14 +1,20 @@
+import sys
+sys.path.append("..")
+
+import click
 from flask.cli import with_appcontext
 from flask.globals import current_app
 from flask_sqlalchemy import SQLAlchemy
-import click
+from sqlalchemy.orm.session import Session
 
 dbase = SQLAlchemy()
 
-from backend.registration.models import Beneficiaries, Doctors, Specialities, Licenses
-from backend.scheduling.models import Schedules
 
 from backend.booking.models import Appointment
+from backend.registration.models import (Beneficiary, Doctor, License, Country,
+                                         Speciality, MemberAddress)
+from backend.scheduling.models import Schedule
+
 
 @click.command("populate")
 @click.option("--tables", default="all")
@@ -17,6 +23,7 @@ def populate_tables(tables):
     click.echo("Initializing registration tables")
     prepopulate(tables)
 
+
 @click.command("delete")
 @click.option("--tables", default="all")
 @with_appcontext
@@ -24,64 +31,90 @@ def erase_tables(tables):
     click.echo("Initializing tables: {}".format(tables))
     delete(tables)
 
+
 def initialize_dbase(app):
     dbase.init_app(app)
     dbase.create_all(bind="__all__", app=app)
     app.cli.add_command(populate_tables)
     app.cli.add_command(erase_tables)
 
+
 def prepopulate(tables):
-    
+
     all_tables = initialized_tables()
 
-    if tables=="all":
-        for tbl in all_tables:
+    if tables == "all":
+        for tbl in all_tables.values():
             tbl.save()
     else:
         tbl = all_tables[tables]
         tbl.save()
 
-def delete(tables):
-    
-    all_tables = initialized_tables()
 
-    if tables=="all":
-        for tbl in all_tables:
-            dbase.session.delete(tbl)
-            dbase.session.commit()
-    else:
-        tbl = all_tables[tables]
-        dbase.session.delete(tbl)
-        dbase.session.commit()
+def delete(tables):
+    instantes = {
+        "beneficiaries": Beneficiary,
+        "appointments": Appointment,
+        "doctors": Doctor,
+        "specialities": Speciality,
+        "schedules": Schedules,
+    }
+    all_tables = initialized_tables()
+    with Session(dbase.engine) as session, session.begin():
+        if tables == "all":
+                try:
+                    for tbl in all_tables:
+                        session.delete(tbl)
+                except:
+                    session.rollback()
+                else:
+                    session.commit()    
+        else:
+            instante = session.query(instantes[tables])
+            stmt = delete(instantes[tables]).Where(instantes[tables].doctor_nif == instante.doctor_nif)
+            session.delete(stmt)
+            session.commit()
+
 
 def initialized_tables():
-    beneficiaries = Beneficiaries("Magido Mascate", 38, "920065440", "msnabmdjaiufakjaonaosf")
-    appointments = Appointment(
-        date="04/07/2021", 
-        time="12:00", 
-        doctName="Dr. John Doe", 
-        doctSpeciality="Nutricionist", 
-        doctIdentity="cacascavavavavavaefvagsfafdaadfavbadgsefaegfvgsbsgfva", 
-        beneficiaryName="Magido Mascate", 
-        beneficiaryPhone="351920000000", 
-        beneficiaryNif = "mmndmajdladandadmasjscavavadcavasavsd"
+    beneficiary = Beneficiary(
+        "Magido Mascate", 38, "920065440", "msnabmdjaiufakjaonaosf", city="", country=""
     )
-    
-    doctors = Doctors("Dr. John Doe", "351920450000", "acsvavadvfvadv", "saacvadvadvasdfvacavav", "Av. Carolina Michaelis")
+    appointment = Appointment(
+        date="04/07/2021",
+        time="12:00",
+        doctName="Dr. John Doe",
+        doctSpeciality="Nutricionist",
+        doctIdentity="cacascavavavavavaefvagsfafdaadfavbadgsefaegfvgsbsgfva",
+        beneficiaryName="Magido Mascate",
+        beneficiaryPhone="351920000000",
+        beneficiaryNif="mmndmajdladandadmasjscavavadcavasavsd",
+    )
 
-    specs = Specialities("Nutricionist", "Nutricionist professional", doctors.id)
-    
-    scheds = Schedules('date', 'time', 'week', 'year', doctors.id)
+    doctor = Doctor(
+        name="Dr. John Doe",
+        phone="351920450000",
+        nif="acsvavadvfvadv",
+        mode="saacvadvadvasdfvacavav",
+        address="Av. Carolina Michaelis",
+        city="msdamsdansd",
+        country="msdmasdkansdkas",
+        photo="msoadnsandoasdas"
+    )
+
+    speciality = Speciality("Nutricionist", "Nutricionist professional", 1)
+
+    schedule = Schedule("date", "time", "week", "year", 1)
 
     return {
-        "beneficiaries": beneficiaries,
-        "appointments" : appointments,
-        "doctors" : doctors,
-        "specialities": specs, 
-        "schedules" : scheds,
+        "beneficiaries": beneficiary,
+        "appointments": appointment,
+        "doctors": doctor,
+        "specialities": speciality,
+        "schedules": schedule,
     }
-        
 
-def retrieve_dbase():
-    dbase.init_app(current_app)
-    yield dbase
+
+# def retrieve_dbase():
+#     dbase.init_app(current_app)
+#     yield dbase
