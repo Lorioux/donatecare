@@ -1,3 +1,4 @@
+from sqlalchemy.orm import aliased
 from backend.tests.conftest import address
 import sys
 
@@ -38,17 +39,27 @@ def subscribers():
 
 
 @members.route("/doctors", methods=["GET"])
-def find_doctors():
-    doctors = Doctor.query.all()
+def find_doctors(*args, **kwargs):
+    print(kwargs)
+    doctors = Doctor().find_all(criterion="speciality", name="Dentist")
+    
     template = []
+    # print(doctors)
     for doctor in doctors:
-        template += {
-            "name" : doctor.name,
+        print(doctor)
+        template.append({
+            "name" : doctor[1],
             "identity": doctor.nif,
-            "speciality": Speciality.getby_id(id=doctor.id),
-            "address" : doctor.address,
+            "speciality": doctor.speciality_name,
+            "address" : {
+                "road" : doctor.road,
+                "flat" : doctor.flat,
+                "zipcode" : doctor.zipcode,
+                "city" : doctor.city,
+                "country" : doctor.country
+            }, 
             "mode" : doctor.mode,
-        }
+        })
     return jsonify(template)
 
 

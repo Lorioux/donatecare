@@ -4,7 +4,7 @@ import sys
 
 sys.path.append("..")
 
-from backend.databases import dbase
+from backend.databases import dbase, initializer
 
 
 class Appointment(dbase.Model):
@@ -23,25 +23,15 @@ class Appointment(dbase.Model):
     beneficiaryPhone = Column(dbase.String(12))
     beneficiaryNif = Column(dbase.String(128))
 
-    def __init__(
-        self,
-        date,
-        time,
-        doctName,
-        doctSpeciality,
-        doctIdentity,
-        beneficiaryName,
-        beneficiaryPhone,
-        beneficiaryNif,
-    ):
-        self.date = date
-        self.time = time
-        self.doctName = doctName
-        self.doctSpeciality = doctSpeciality
-        self.doctIdentity = doctIdentity
-        self.beneficiaryName = beneficiaryName
-        self.beneficiaryPhone = beneficiaryPhone
-        self.beneficiaryNif = beneficiaryNif
+    def __init__(self, **kwargs    ):
+        self.date = initializer("date", kwargs)
+        self.time = initializer("time", kwargs)
+        self.doctName = initializer("doctName", kwargs)
+        self.doctSpeciality = initializer("doctSpeciality", kwargs)
+        self.doctIdentity = initializer("doctIdentity", kwargs)
+        self.beneficiaryName = initializer("beneficiaryName", kwargs)
+        self.beneficiaryPhone = initializer("beneficiaryPhone", kwargs)
+        self.beneficiaryNif = initializer("beneficiaryNif", kwargs)
 
     def save(self):
         dbase.session.add(self)

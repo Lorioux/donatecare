@@ -25,8 +25,7 @@ app.register_blueprint(schedules)
 
 @app.route("/")
 def index():
-    return redirect("/booking")
-
+    return redirect("/members")
 
 if __name__ == "__main__":
     app.run("127.0.0.1", port=8000,debug=True)

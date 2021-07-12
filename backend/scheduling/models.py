@@ -1,17 +1,16 @@
 from operator import and_
 import sys
-
 sys.path.append("..")
 
 from sqlalchemy import Column, String, Integer
 
-from backend.databases import dbase
+from backend.databases import dbase, initializer
 
 
 class Schedule(dbase.Model):
     __table_args__ = {"extend_existing": True}
     __tablename__ = "schedule"
-    __bind_key__ = "scheduling"
+    __bind_key__ = "schedules"
 
     id = Column(Integer, primary_key=True)
     date = Column(String(11))
@@ -20,13 +19,13 @@ class Schedule(dbase.Model):
     year = Column(Integer)
     doctor_id = Column(Integer)
 
-    def __init__(self, date, time, week, year, doctor_id) -> None:
-        self.date = date
-        self.time = time
-        self.year = year
-        self.week = week
-        self.doctor_id = doctor_id
-
+    def __init__(self, **kwargs):
+        self.date = initializer("date", kwargs)
+        self.time = initializer("time", kwargs)
+        self.year = initializer("year", kwargs)
+        self.week = initializer("week",  kwargs)
+        self.doctor_id = initializer("doctor_id", kwargs)
+        
     def save(self):
         dbase.session.add(self)
         dbase.session.commit()

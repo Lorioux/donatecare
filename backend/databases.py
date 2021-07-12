@@ -9,6 +9,10 @@ from sqlalchemy.orm.session import Session
 
 dbase = SQLAlchemy()
 
+def initializer(key, kwargs):
+    if kwargs.keys().__contains__(key):
+        return kwargs[key]
+    return None
 
 from backend.booking.models import Appointment
 from backend.registration.models import (Beneficiary, Doctor, License, Country,
@@ -47,23 +51,25 @@ def prepopulate(tables):
         for tbl in all_tables.values():
             tbl.save()
     else:
+        click.echo("Working on table. " + tables)
         tbl = all_tables[tables]
         tbl.save()
 
 
 def delete(tables):
     instantes = {
-        "beneficiaries": Beneficiary,
-        "appointments": Appointment,
-        "doctors": Doctor,
-        "specialities": Speciality,
-        "schedules": Schedules,
+        "beneficiaries": Beneficiary(),
+        "appointments": Appointment(),
+        "doctors": Doctor(),
+        "specialities": Speciality(),
+        "schedules": Schedule(),
     }
+
     all_tables = initialized_tables()
     with Session(dbase.engine) as session, session.begin():
         if tables == "all":
                 try:
-                    for tbl in all_tables:
+                    for tbl in instantes:
                         session.delete(tbl)
                 except:
                     session.rollback()
@@ -78,8 +84,10 @@ def delete(tables):
 
 def initialized_tables():
     beneficiary = Beneficiary(
-        "Magido Mascate", 38, "920065440", "msnabmdjaiufakjaonaosf", city="", country=""
+        "Magido Mascate", 38, "920065440", "msnabmdjaiufakjaonaosf",
+        addresses="mcaosmdasdasdasddasdasnadass"
     )
+
     appointment = Appointment(
         date="04/07/2021",
         time="12:00",
@@ -96,15 +104,15 @@ def initialized_tables():
         phone="351920450000",
         nif="acsvavadvfvadv",
         mode="saacvadvadvasdfvacavav",
-        address="Av. Carolina Michaelis",
-        city="msdamsdansd",
-        country="msdmasdkansdkas",
-        photo="msoadnsandoasdas"
+        photo="msoadnsandoasdas",
+        speciality = "msdamsn,dkaksdalsdamlsda",
+        address = "dasmddoaosdmasdkaslmaosnasfa",
+        license= "sacmsiandiaidaosdnaosdas"
     )
 
-    speciality = Speciality("Nutricionist", "Nutricionist professional", 1)
+    speciality = Speciality(title="Nutricionist", details="Nutricionist professional", doctor_id=1)
 
-    schedule = Schedule("date", "time", "week", "year", 1)
+    schedule = Schedule(date="date", time="time", week="week", year="year", doctor_id=1)
 
     return {
         "beneficiaries": beneficiary,
