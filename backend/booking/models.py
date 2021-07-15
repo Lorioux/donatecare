@@ -1,27 +1,26 @@
+from __future__ import absolute_import
+
 from sqlalchemy import Column, Integer, String
+# import sys
+# sys.path.append("..")
 
-import sys
-
-sys.path.append("..")
-
-from backend.databases import dbase, initializer
-
+from backend import dbase, initializer
 
 class Appointment(dbase.Model):
     __tablename__ = "appointments"
     __table_args__ = {"extend_existing": True}
     __bind_key__ = "booking"
 
-    id = Column(dbase.Integer, primary_key=True)
-    date = Column(dbase.String(8))
-    time = Column(dbase.String(5))
-    doctName = Column(dbase.String(55))
-    doctSpeciality = Column(dbase.String(55))
-    doctIdentity = Column(dbase.String(128))
-    doctAddress = Column(dbase.String(128))
-    beneficiaryName = Column(dbase.String(55))
-    beneficiaryPhone = Column(dbase.String(12))
-    beneficiaryNif = Column(dbase.String(128))
+    id = Column(Integer, primary_key=True)
+    date = Column(String(8))
+    time = Column(String(5))
+    doctName = Column(String(55))
+    doctSpeciality = Column(String(55))
+    doctIdentity = Column(String(128))
+    doctAddress = Column(String(128))
+    beneficiaryName = Column(String(55))
+    beneficiaryPhone = Column(String(12))
+    beneficiaryNif = Column(String(128))
 
     def __init__(self, **kwargs    ):
         self.date = initializer("date", kwargs)

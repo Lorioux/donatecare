@@ -4,9 +4,7 @@ sys.path.append("..")
 
 from sqlalchemy import Column, String, Integer
 
-from backend.databases import dbase, initializer
-
-
+from backend import dbase, initializer
 class Schedule(dbase.Model):
     __table_args__ = {"extend_existing": True}
     __tablename__ = "schedule"

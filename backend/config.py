@@ -1,13 +1,13 @@
+
 SQLALCHEMY_BINDS = {
-    "booking": "sqlite:///booking/instance_file/booking.db",
-    "profiles": "sqlite:///registration/instance_files/profiles.db",
-    "schedules": "sqlite:///scheduling/instance_files/schedules.db",
+    "booking": "sqlite:///databases/booking.db",
+    "profiles": "sqlite:///databases/profiles.db",
+    "schedules": "sqlite:///databases/schedules.db",
 }
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 SECRET = "ncamcajdansdkasaiskdaslfaljfoanjoakpmsdpadnaojfoamfanfo"
-
 
 ENV="development"
 
