@@ -1,2 +1,2 @@
 # donatecare
-Opene source application for heathcare donation.
+Open source application for heathcare donation.
