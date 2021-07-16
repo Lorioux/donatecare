@@ -11,6 +11,7 @@ from backend.registration.models import Beneficiary
 
 bookings = Blueprint("booking", __name__, url_prefix="/booking")
 
+
 @bookings.route("/")
 def booking():
     appointment = Appointment.query.all()

@@ -5,7 +5,13 @@ from flask import Blueprint, request, jsonify
 from flask.helpers import make_response
 
 from backend.registration.models import (
-    Beneficiary, Country, Doctor, Address, License, Speciality )
+    Beneficiary,
+    Country,
+    Doctor,
+    Address,
+    License,
+    Speciality,
+)
 
 membership = Blueprint(
     "members",
@@ -93,6 +99,7 @@ def subscribe():
         return jsonify({"id": None})
 
     return None
+
 
 def handle_subscriptions(role, data):
     if role == "doctor":
