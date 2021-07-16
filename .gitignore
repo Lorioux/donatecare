@@ -108,3 +108,5 @@ node_modules
 dist
 dist-ssr
 *.local
+
+.pytest_cache

@@ -1,4 +1,4 @@
-from __future__ import absolute_path
+from __future__ import absolute_import
 
 
 from sqlalchemy.orm.query import Query
