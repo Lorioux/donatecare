@@ -10,7 +10,9 @@ on:
     - main
     - Lorioux(."\/issue")[0-9]{1,3}
   pull_request:
-    branches: [ main, ".\/issue.+[0-9]{1,3}"]
+    branches: 
+    - main
+    - Lorioux(."\/issue")[0-9]{1,3}
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
