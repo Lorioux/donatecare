@@ -1,20 +1,16 @@
 from __future__ import absolute_import
 
-from flask import Blueprint
+from flask import Blueprint, request, jsonify
 from flask.globals import current_app, g
-from flask.json import jsonify
-from flask import request
+from flask.helpers import url_for
 from sqlalchemy.orm import query
 from werkzeug.utils import redirect
 
-import sys
-
-sys.path.append("..")
+from backend.booking.models import Appointment
+from backend.registration.models import Beneficiary
 
 bookings = Blueprint("booking", __name__, url_prefix="/booking")
 
-from .models import Appointment
-from ..registration.models import Beneficiary
 
 @bookings.route("/")
 def booking():
@@ -66,9 +62,7 @@ def make_appointment():
         #     beneficiaryNIF=data.beneficiaryNIF )
         # dbase.session_add(Appointment)
         return jsonify({"query": beneficiary[0].fullname})
-    else:
-        redirect("/subscribe", data={"beneficiary": ""})
-        pass
+    return redirect(url_for(".subscribe", method="GET"))
 
 
 # if __name__ == '__main__':

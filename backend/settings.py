@@ -1,4 +1,3 @@
-
 SQLALCHEMY_BINDS = {
     "booking": "sqlite:///databases/booking.db",
     "profiles": "sqlite:///databases/profiles.db",
@@ -7,10 +6,15 @@ SQLALCHEMY_BINDS = {
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-SECRET = "ncamcajdansdkasaiskdaslfaljfoanjoakpmsdpadnaojfoamfanfo"
+SECRET_KEY = "ncamcajdansdkasaiskdaslfaljfoanjoakpmsdpadnaojfoamfanfo"
 
-ENV="development"
+ENV = "development"
+
+DEBUG = True
 
 SESSION_REFRESH_EACH_REQUEST = True
 
+SESSION_COOKIE_NAME = "donatecare"
+
+JSONIFY_PRETTYPRINT_REGULAR = True
 # SERVER_NAME = "backend.localhost"

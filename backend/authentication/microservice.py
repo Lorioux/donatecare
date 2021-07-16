@@ -8,6 +8,7 @@ auth = Blueprint("auth", __name__, url_prefix="memberAuth")
 def login():
     pass
 
+
 @auth.route("/logout")
 def logout():
     pass

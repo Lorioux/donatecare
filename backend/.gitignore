@@ -1,11 +1,10 @@
-**/__pycache__
+__pycache__
+
+.env
+*.db
 
 .pytest_cache
 
 .venv
-
-*.db
-
-.env
 
 */__pycache__

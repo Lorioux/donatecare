@@ -1,4 +1,4 @@
-from __future__ import absolute_import 
+from __future__ import absolute_import
 
 import click
 from flask.cli import with_appcontext
@@ -14,6 +14,7 @@ dbase = SQLAlchemy()
 migrate = Migrate()
 
 Base = declarative_base()
+
 
 def initializer(key, kwargs):
     if kwargs.keys().__contains__(key):
