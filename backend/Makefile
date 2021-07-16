@@ -12,7 +12,10 @@ lint:
 	# Scanning dockerfile
 	hadolint --ignore DL3003 ./Dockerfile
 	# Scanning source code
-	pylint --ignore=migrations -d W app.py registration/microservice.py
+	pylint --ignore=migrations -d W,C0114 app.py \
+		registration/microservice.py \
+		booking/microservice.py \
+		scheduling/microservice.py
 
 test:
 	pytest --verbose --junit-logging system-out

@@ -1,4 +1,3 @@
-
 SQLALCHEMY_BINDS = {
     "booking": "sqlite:///databases/booking.db",
     "profiles": "sqlite:///databases/profiles.db",
@@ -9,7 +8,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 SECRET_KEY = "ncamcajdansdkasaiskdaslfaljfoanjoakpmsdpadnaojfoamfanfo"
 
-ENV="development"
+ENV = "development"
 
 DEBUG = True
 

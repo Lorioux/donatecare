@@ -1,10 +1,13 @@
 from operator import and_
 import sys
+
 sys.path.append("..")
 
 from sqlalchemy import Column, String, Integer
 
 from backend import dbase, initializer
+
+
 class Schedule(dbase.Model):
     __table_args__ = {"extend_existing": True}
     __tablename__ = "schedule"
@@ -21,9 +24,9 @@ class Schedule(dbase.Model):
         self.date = initializer("date", kwargs)
         self.time = initializer("time", kwargs)
         self.year = initializer("year", kwargs)
-        self.week = initializer("week",  kwargs)
+        self.week = initializer("week", kwargs)
         self.doctor_id = initializer("doctor_id", kwargs)
-        
+
     def save(self):
         dbase.session.add(self)
         dbase.session.commit()
@@ -45,6 +48,4 @@ class Schedule(dbase.Model):
                     Schedule.doctor_id == id,
                 )
             )
-        return Schedule.query.filter(
-            and_(Schedule.week >= week, Schedule.year <= year)
-        )
+        return Schedule.query.filter(and_(Schedule.week >= week, Schedule.year <= year))

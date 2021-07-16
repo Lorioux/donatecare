@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
 from sqlalchemy import Column, Integer, String
+
 # import sys
 # sys.path.append("..")
 
 from backend import dbase, initializer
+
 
 class Appointment(dbase.Model):
     __tablename__ = "appointments"
@@ -22,7 +24,7 @@ class Appointment(dbase.Model):
     beneficiaryPhone = Column(String(12))
     beneficiaryNif = Column(String(128))
 
-    def __init__(self, **kwargs    ):
+    def __init__(self, **kwargs):
         self.date = initializer("date", kwargs)
         self.time = initializer("time", kwargs)
         self.doctName = initializer("doctName", kwargs)

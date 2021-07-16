@@ -1,5 +1,7 @@
-from flask.blueprints import Blueprint
-from flask.json import jsonify
+from __future__ import absolute_import
+
+
+from flask import Blueprint, jsonify
 
 
 schedules = Blueprint("schedules", __name__, url_prefix="/schedules")
