@@ -1,0 +1,59 @@
+version: 2.0
+
+commands:
+  destroy_environ:
+    description: destroy deployment ennvironment
+    parameters:
+      awsConfigStatus:
+        type: enum
+        default: "configured"
+        enum: ["configured", "notconfigured"]
+    steps:
+      - run:
+          name: destroy deployment environment
+          when: on_fail
+          command: |
+            awsStatus=<parameters.awsConfigStatus>
+            if [ $awsStatus == "notconfigured"]
+              then
+                # TODO: install awscli
+                # TODO: configure awscli profile
+
+            # TODO: destoy the environment starting from S3 resources  emptying
+            # aws s3 rm s3://<backed_name>/resouce_name --recursive --force
+            # TODO: destroy deployment stacks based on worflow ID
+            # aws cloudformation destroy ----?
+
+  make_migrations:
+    description: make database migrations
+    parameters:
+      versionChanged:
+        type: bool
+        default: yes
+    steps:
+      - run: 
+          name: setup virtual environment
+          command: |
+            # create virtual environment to install and run python dependencies
+            python -m venv .venv
+            source .venv/bin/activate
+      - run:
+          name: install dependencies
+          command: |
+            make install -r requirements.txt
+      - run:
+          name: migrate databases
+          command: |
+            make migrations
+
+jobs:
+  build_backend:
+    description: build from backend source code
+    docker:
+      - image: circleci/python:3.8.4
+    steps:
+      - checkout
+      - run:
+          name: run code build 
+          command: |
+            #
