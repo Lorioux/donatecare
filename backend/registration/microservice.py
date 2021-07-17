@@ -70,14 +70,14 @@ def find_doctors():
         if criteria == "mode":
             doctors = Doctor().find_all(criteria=criteria, mode=data["mode"])
 
-        if criteria == "all":
+        if criteria == "all" :
             doctors = Doctor().find_all(criteria=criteria)
 
     except RuntimeError as error:
         print(error)
         return None
     print(doctors)
-    
+
     template = {
         "metadata": {
             "requestTime": request_time,
@@ -255,12 +255,13 @@ def add_member_address(data=dict()):
     return address_id
 
 
-@membership.route("/licenses/<int:docid>", methods=["GET"])
+@membership.route("/licenses/<int:doctorid>", methods=["GET"])
 @membership.route("/doctor/<int:doctorid>/licences")
 def licences(doctorid):
     request_time = datetime.now()
     licenses = Doctor.query.get(doctorid).licenses
-    if licenses is None:
+    print(licenses)
+    if licenses is None or licenses == []:
         return jsonify({"response": "empty"})
     template = {
         "metadata": {
@@ -289,12 +290,12 @@ def licences(doctorid):
     return response
 
 
-@membership.route("/specialities", methods=["GET"])
-@membership.route("/speciality/<string:title>", methods=["GET"])
-def specialities(title):
+@membership.route("/allSpecicialities", methods=["GET"])
+@membership.route("/findSpeciality?title=<string:title>", methods=["GET"])
+def specialities(title=None):
     request_time = datetime.now()
     specs = None
-
+    
     if title == None:
         specs = Speciality().getby_title(title)
     else:

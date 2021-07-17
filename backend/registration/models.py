@@ -1,8 +1,11 @@
 from __future__ import absolute_import
+from flask.globals import session
 
 from sqlalchemy import Column, String, Integer, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm.query import Query
+from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_
 
 from backend import dbase, initializer
@@ -201,7 +204,7 @@ class Doctor(dbase.Model):
         dbase.session.add(self)
         try:
 
-            dbase.session.commit()
+            # dbase.session.commit()
             speciality = self.link_speciality(specialities=self.speciality)
             licenses = self.link_licenses(licenses=self.license)
             address = self.link_addresses(address=self.address)
@@ -307,28 +310,22 @@ class Doctor(dbase.Model):
             return None
 
     @classmethod
-    def link_licenses(self, licenses: any):
+    def link_licenses(self, licenses: dict):
         results = []
+        dbase.session.bulk_insert_mappings(License,licenses)
+        dbase.session.commit()
+        
         for license in licenses:
-            check_create = License(
-                code=license["code"],
-                issue_date=license["issue_date"],
-                valid_date=license["valid_date"],
-                issuer=license["issuer"],
-                country=license["country"],
-                certificate=license["certificate"],
-            ).save()
+            check_create = License().findby_code(license["code"])
+                       
             try:
                 if check_create is not None:
                     # check_create.doctors.append(self)
                     results.append(check_create)
-                # else:
-                #     return results.append(None)
             except RuntimeError as e:
                 print(e)
                 return None
-            else:
-                return results
+        return results
 
 
 class Speciality(dbase.Model):
@@ -411,8 +408,8 @@ class License(dbase.Model):
     def getby_doctid(self, id):
         return self.query.filter(self.doct_id == id)
 
-    def findby_code(self, id):
-        return self.query.filter(License.code.like(self.code))
+    def findby_code(self, code):
+        return self.query.filter(License.code.like(code)).first()
 
 
 class Country(dbase.Model):
