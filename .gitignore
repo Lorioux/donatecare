@@ -102,3 +102,14 @@ dist
 
 # TernJS port file
 .tern-port
+<<<<<<< HEAD
+=======
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+.pytest_cache
+>>>>>>> f9200b1f8736f8c93f357e3f10abcb035ad1c47d

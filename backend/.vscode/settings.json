@@ -1,0 +1,26 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "backend_0",
+            "group": "backend",
+            "database": "${workspaceFolder:backend}/booking/instance_file/booking.db"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "backend_1",
+            "group": "backend",
+            "database": "${workspaceFolder:backend}/registration/instance_files/profiles.db"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "backend_2",
+            "group": "backend",
+            "database": "${workspaceFolder:backend}/scheduling/instance_files/schedules.db"
+        }
+    ],
+    "python.linting.pylintEnabled": true
+}
