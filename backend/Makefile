@@ -16,6 +16,7 @@ lint:
 	sudo chmod +x hadolint
 	sudo ./hadolint --ignore DL3003 ./Dockerfile
 	# Scanning source code
+	. .venv/bin/activate
 	black ./
 	pylint --ignore=migrations -d W,C0114 app.py \
 		registration/microservice.py \
