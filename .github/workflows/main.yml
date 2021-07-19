@@ -20,7 +20,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  build_backend:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     
@@ -33,19 +33,12 @@ jobs:
       - name: Prepare virtual environment for jobs
         run: |
           cd backend/
-          make setup
-      
-      # Runs dependencies installion instruction on makefile 
-      - name: Install dependencies
-        run: |
-          cd backend/
-          make install
-      
-      # Scan code 
+          make setup      
+      # Runs code scans
       - name: Perform lint operation on source code and dockerfile
         run: |
           cd backend/
-          sudo make lint
+          make lint
       
       # Runs database migrations based on migrations version differences
       - name: Make dabate migrations
@@ -60,7 +53,7 @@ jobs:
           make migrations
       
       # Runs unit tests on code 
-      - name: Test build code
+      - name: Test built code
         run: |
           cd backend/
           make test
