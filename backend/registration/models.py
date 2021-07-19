@@ -8,7 +8,9 @@ from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import and_
 
 from backend import dbase, initializer
+
 session = dbase.session
+
 
 class DoctorSpeciality(dbase.Model):
     __tablename__ = "doctor_speciality"

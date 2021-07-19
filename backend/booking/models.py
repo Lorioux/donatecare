@@ -11,6 +11,7 @@ from backend import dbase, initializer
 
 session = dbase.session
 
+
 class Appointment(dbase.Model):
     __tablename__ = "appointments"
     __table_args__ = {"extend_existing": True}

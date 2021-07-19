@@ -18,18 +18,15 @@ def test_05_add_schedules(client, schedules):
 def test_06_update_schedules(client, schedules):
     schedules[0]["weeks"]["3"]["days"] += "fri"
     schedules[0]["weeks"]["3"]["timeslots"] += ["08:00", "14:00"]
-    schedules[0]["weeks"] = {
-        "4" : dict(
-            days = ["fri"],
-            timeslots = [
-                ["08:00", "14:00","23:00"]
-            ]
-        )
-    }
+    schedules[0]["weeks"].update(
+        {"4": dict(days=["fri"], timeslots=[["08:00", "14:00", "23:00"]])}
+    )
 
-    rv = client.put("/schedules/updateSchedule", \
-            data=json.dumps(schedules), \
-                content_type="application/json", \
-                    follow_redirects=True )
+    rv = client.put(
+        "/schedules/updateSchedule",
+        data=json.dumps(schedules),
+        content_type="application/json",
+        follow_redirects=True,
+    )
 
     assert "23:00" in str(rv.data)

@@ -1,16 +1,13 @@
 from __future__ import absolute_import
 from logging import Logger
 from os import abort
-from click.exceptions import Abort
 from flask import Blueprint, jsonify, request, json
 from flask.helpers import url_for
-from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.elements import and_
 from werkzeug.utils import redirect
-import pickle
+
 
 from backend.scheduling.models import Schedule
-from backend import dbase
 
 LOG = Logger("SCHEDULING")
 schedules = Blueprint("schedules", __name__, url_prefix="/schedules")
@@ -38,14 +35,15 @@ def create(schedule=None):
             month=schedule["month"],
             doctor_nif=schedule["doctorId"],
         ).save()
-        for schedule in data \
-            if schedule is not None
+        for schedule in data
+        if schedule is not None
     ]
 
     if not None in schedules and len(schedules) == count:
         return jsonify("successfully")
-    
-    abort()
+
+    return abort()
+
 
 @schedules.route("/updateSchedule", methods=["PUT"])
 def update():
@@ -53,13 +51,13 @@ def update():
     old = None
     for schedule in data:
         if schedule is not None:
-            old = Schedule.query.filter(\
-                    and_ (
-                        Schedule.month.like(schedule["month"]), \
-                        Schedule.year == schedule["year"]
-                    ), 
-                    Schedule.doctor_nif == schedule["doctorId"]
-                ).one_or_none()
+            old = Schedule.query.filter(
+                and_(
+                    Schedule.month.like(schedule["month"]),
+                    Schedule.year == schedule["year"],
+                ),
+                Schedule.doctor_nif == schedule["doctorId"],
+            ).one_or_none()
             if old is None:
                 redirect(url_for(".create", schedule=schedule))
             old.weeks.update(schedule["weeks"])
@@ -67,9 +65,11 @@ def update():
     print(old.weeks)
     return jsonify(old.weeks)
 
+
 @schedules.errorhandler(401)
-def createError():
+def create_error():
     return "Not Allowed"
+
 
 @schedules.route("/all")
 def get_all():

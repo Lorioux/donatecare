@@ -10,6 +10,7 @@ from backend import Beneficiary, Doctor, Speciality, DoctorSpeciality, dbase, se
 
 from backend.app import app
 from backend import settings
+
 # session = Session(bind="__all__", expire_on_commit=False, autocommit=True)
 
 
@@ -17,13 +18,12 @@ from backend import settings
 def client():
     with app.app_context():
         app.config.from_object(settings.TestingConfig)
-        
+
         dbase.init_app(app)
         dbase.create_all()
         print(app.config["SQLALCHEMY_BINDS"])
         yield app.test_client()
 
-    
 
 @pytest.fixture()
 def doctor(speciality, address, license):

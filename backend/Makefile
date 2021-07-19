@@ -11,7 +11,7 @@ install: setup
 	sudo wget -O hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
 	sudo chmod +x hadolint
 	
-lint: install
+lint: 
 	# Scanning dockerfile
 	sudo ./hadolint --ignore DL3003 ./Dockerfile
 	# Scanning source code

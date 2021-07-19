@@ -16,6 +16,7 @@ migrate = Migrate()
 Base = declarative_base()
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
 
+
 def initializer(key, kwargs):
     if kwargs.keys().__contains__(key):
         return kwargs[key]

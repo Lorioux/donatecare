@@ -14,6 +14,7 @@ from backend import dbase, initializer
 
 session = dbase.session
 
+
 class Schedule(dbase.Model):
     __table_args__ = {"extend_existing": True}
     __tablename__ = "schedule"
@@ -34,13 +35,12 @@ class Schedule(dbase.Model):
         self.weeks = initializer("weeks", kwargs)
         self.month = initializer("month", kwargs)
         self.doctor_nif = initializer("doctor_nif", kwargs)
-        
 
     def save(self):
-        
+
         schedule = self.getby_unique_keys(self.month, self.year, self.doctor_nif)
         try:
-            if schedule is not None: 
+            if schedule is not None:
                 schedule.weeks.update(self.weeks)
                 return self
             session.add(self)
@@ -64,7 +64,9 @@ class Schedule(dbase.Model):
                 and_(Schedule.month.like(month), Schedule.year <= year),
                 Schedule.doctor_nif == doctor_nif,
             ).one_or_none()
-        return Schedule.query.filter(and_(Schedule.month.like(month), Schedule.year <= year))
+        return Schedule.query.filter(
+            and_(Schedule.month.like(month), Schedule.year <= year)
+        )
 
 
 # class TimeSlot(Base):
