@@ -21,7 +21,7 @@ lint: install
 		booking/microservice.py \
 		scheduling/microservice.py
 
-migrations: install
+migrations: 
 	flask db init --multidb
 	flask db stamp head
 	flask db migrate
