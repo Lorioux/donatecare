@@ -45,7 +45,7 @@ jobs:
       - name: Perform lint operation on source code and dockerfile
         run: |
           cd backend/
-          make lint
+          sudo make lint
       
       # Runs database migrations based on migrations version differences
       - name: Make dabate migrations
