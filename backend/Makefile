@@ -8,12 +8,11 @@ install: setup
 	. .venv/bin/activate
 	python -m pip install --upgrade pip &&\
 	pip install -r requirements.txt
-	
-	
-lint: 
-	# Scanning dockerfile
 	sudo wget -O hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
 	sudo chmod +x hadolint
+	
+lint: install
+	# Scanning dockerfile
 	sudo ./hadolint --ignore DL3003 ./Dockerfile
 	# Scanning source code
 	. .venv/bin/activate
