@@ -28,7 +28,7 @@ migrations: install
 	flask db upgrade
 
 test:
-	pytest --verbose --junit-logging system-out
+	pytest --verbose 
 
 
 all: install lint test
