@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from flask.globals import session
+from flask_sqlalchemy import BaseQuery
 
 from sqlalchemy import Column, Integer, String
 
@@ -7,6 +9,7 @@ from sqlalchemy import Column, Integer, String
 
 from backend import dbase, initializer
 
+session = dbase.session
 
 class Appointment(dbase.Model):
     __tablename__ = "appointments"
@@ -16,24 +19,25 @@ class Appointment(dbase.Model):
     id = Column(Integer, primary_key=True)
     date = Column(String(8))
     time = Column(String(5))
-    doctName = Column(String(55))
-    doctSpeciality = Column(String(55))
-    doctIdentity = Column(String(128))
-    doctAddress = Column(String(128))
-    beneficiaryName = Column(String(55))
-    beneficiaryPhone = Column(String(12))
-    beneficiaryNif = Column(String(128))
+    doct_name = Column(String(55))
+    doct_speciality = Column(String(55))
+    doct_identity = Column(String(128))
+    doct_address = Column(String(128))
+    beneficiary_name = Column(String(55))
+    beneficiary_phone = Column(String(12))
+    beneficiary_nif = Column(String(128))
 
     def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.date = initializer("date", kwargs)
         self.time = initializer("time", kwargs)
-        self.doctName = initializer("doctName", kwargs)
-        self.doctSpeciality = initializer("doctSpeciality", kwargs)
-        self.doctIdentity = initializer("doctIdentity", kwargs)
-        self.beneficiaryName = initializer("beneficiaryName", kwargs)
-        self.beneficiaryPhone = initializer("beneficiaryPhone", kwargs)
-        self.beneficiaryNif = initializer("beneficiaryNif", kwargs)
+        self.doct_name = initializer("doctName", kwargs)
+        self.doct_speciality = initializer("doctSpeciality", kwargs)
+        self.doct_identity = initializer("doctIdentity", kwargs)
+        self.beneficiary_name = initializer("beneficiaryName", kwargs)
+        self.beneficiary_phone = initializer("beneficiaryPhone", kwargs)
+        self.beneficiary_nif = initializer("beneficiaryNif", kwargs)
 
     def save(self):
-        dbase.session.add(self)
-        dbase.session.commit()
+        session.add(self)
+        session.commit()

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, json
 from flask.globals import current_app, g
 from flask.helpers import url_for
 from sqlalchemy.orm import query
@@ -62,7 +62,7 @@ def make_appointment():
         #     beneficiaryNIF=data.beneficiaryNIF )
         # dbase.session_add(Appointment)
         return jsonify({"query": beneficiary[0].fullname})
-    return redirect(url_for(".subscribe", method="GET"))
+    return redirect(url_for("members.subscribe", _method="GET", data="TEST"))
 
 
 # if __name__ == '__main__':

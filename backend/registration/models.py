@@ -1,15 +1,14 @@
 from __future__ import absolute_import
-from flask.globals import session
+from flask_sqlalchemy import BaseQuery
 
 from sqlalchemy import Column, String, Integer, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.query import Query
-from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.expression import and_
 
 from backend import dbase, initializer
-
+session = dbase.session
 
 class DoctorSpeciality(dbase.Model):
     __tablename__ = "doctor_speciality"
@@ -102,7 +101,7 @@ class Beneficiary(dbase.Model):
         )
 
     def save(self):
-        dbase.session.add(self)
+        session.add(self)
         try:
             new_address = self.add_address(address=self.address)
             if new_address.save() is None:
@@ -111,7 +110,7 @@ class Beneficiary(dbase.Model):
             else:
                 print("Test 2")
                 self.addresses.append(new_address)
-                dbase.session.commit()
+                session.commit()
             return self
         except RuntimeError as e:
             print(e)
@@ -148,10 +147,7 @@ class Beneficiary(dbase.Model):
 
     def validate(self, fullname, phone, nif):
         valid = self.query.filter(
-            and_(
-                self.name.like(fullname) == self.phone.like(phone), 
-                self.nif.like(nif)
-            )
+            and_(self.name.like(fullname) == self.phone.like(phone), self.nif.like(nif))
         ).first()
         if valid:
             return valid
@@ -201,10 +197,10 @@ class Doctor(dbase.Model):
         self.license = initializer("license", kwargs)
 
     def save(self):
-        dbase.session.add(self)
+        session.add(self)
         try:
 
-            # dbase.session.commit()
+            # session.commit()
             speciality = self.link_speciality(specialities=self.speciality)
             licenses = self.link_licenses(licenses=self.license)
             address = self.link_addresses(address=self.address)
@@ -231,7 +227,7 @@ class Doctor(dbase.Model):
 
                 self.addresses.append(address)
                 print(self.addresses[0].road, " ", self.addresses[0].country.name)
-                dbase.session.commit()
+                session.commit()
                 return self
 
         except RuntimeError as e:
@@ -239,8 +235,8 @@ class Doctor(dbase.Model):
             return None
 
     def delete(self):
-        dbase.session.delete(self)
-        dbase.session.commit()
+        session.delete(self)
+        session.commit()
 
     def find_all(self, criteria: any, *args, **kwargs):
         # criterion => speciality | location | mode | [speciality, location]
@@ -255,16 +251,16 @@ class Doctor(dbase.Model):
             return self.query.filter(Doctor.mode == kwargs["mode"])
         if criteria.__contains__("speciality-location"):
             doctors = self.query.filter(
-                            and_(Doctor.addresses.city == kwargs["city"]),
-                            and_(Doctor.specialities.title == kwargs["title"] )
-                        ).all()
+                and_(Doctor.addresses.city == kwargs["city"]),
+                and_(Doctor.specialities.title == kwargs["title"]),
+            ).all()
             return doctors
         if criteria == "speciality-location-mode":
             doctors = self.query.filter(
-                            and_(Doctor.addresses.city == kwargs["city"]),
-                            and_(Doctor.specialities.title == kwargs["title"]),
-                            and_(Doctor.mode.contains(kwargs["mode"]))
-                        ).all()
+                and_(Doctor.addresses.city == kwargs["city"]),
+                and_(Doctor.specialities.title == kwargs["title"]),
+                and_(Doctor.mode.contains(kwargs["mode"])),
+            ).all()
             return doctors
         if criteria == "all":
             return self.query
@@ -312,12 +308,12 @@ class Doctor(dbase.Model):
     @classmethod
     def link_licenses(self, licenses: dict):
         results = []
-        dbase.session.bulk_insert_mappings(License,licenses)
-        dbase.session.commit()
-        
+        session.bulk_insert_mappings(License, licenses)
+        session.commit()
+
         for license in licenses:
             check_create = License().findby_code(license["code"])
-                       
+
             try:
                 if check_create is not None:
                     # check_create.doctors.append(self)
@@ -346,13 +342,13 @@ class Speciality(dbase.Model):
     def save(self):
         specciality = self.getby_title(self.title)
         if specciality is None:
-            dbase.session.add(self)
+            session.add(self)
             try:
-                dbase.session.commit()
+                session.commit()
                 return self
             except RuntimeError as error:
                 print(error)
-                dbase.session.rollback()
+                session.rollback()
                 return None
         else:
             return specciality
@@ -395,9 +391,9 @@ class License(dbase.Model):
     def save(self):
         license = self.findby_code(self.code)
         if license.first() is None:
-            dbase.session.add(self)
+            session.add(self)
             try:
-                dbase.session.commit()
+                session.commit()
                 return self
             except RuntimeError as e:
                 print(e)
@@ -427,19 +423,19 @@ class Country(dbase.Model):
         self.country_code = initializer("ccode", kwargs)
 
     def save(self):
-        dbase.session.add(self)
+        session.add(self)
         try:
-            dbase.session.commit()
+            session.commit()
             return self.id
         except RuntimeError as e:
             print("Error Country: ", e.args)
-            dbase.session.rollback()
+            session.rollback()
             return None
 
     def delete(self):
-        dbase.session.delete(self)
+        session.delete(self)
         try:
-            dbase.session.flush(self)
+            session.flush(self)
             return 1
         except:
             return 0
@@ -487,12 +483,12 @@ class Address(dbase.Model):
         self.country_ = initializer("country", kwargs)
 
     def save(self):
-        dbase.session.add(self)
+        session.add(self)
         try:
             country = Country(name=self.country_).bind_address(address=self)
             if country is not None:
                 self.country = country
-            dbase.session.commit()
+            session.commit()
             return self
         except RuntimeError as e:
             print(e)
@@ -542,9 +538,9 @@ class Address(dbase.Model):
             return addresses
 
     def delete(self):
-        dbase.session.delete(self)
+        session.delete(self)
         try:
-            dbase.session.flush(self)
+            session.flush(self)
             return 1
         except:
             return 0

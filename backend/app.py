@@ -1,13 +1,13 @@
 from __future__ import absolute_import
 
 from flask import Flask, jsonify
-from backend import initialize_dbase, dbase
+from backend import initialize_dbase, dbase, settings
 from backend.registration.microservice import membership
 from backend.booking.microservice import bookings
 from backend.scheduling.microservice import schedules
 
 app = Flask(__name__)
-app.config.from_pyfile("settings.py")
+app.config.from_object(settings.DevelopmentConfig)
 
 dbase.init_app(app)
 

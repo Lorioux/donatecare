@@ -1,26 +1,29 @@
 from __future__ import absolute_import
+from flask.signals import appcontext_tearing_down
 
 
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import and_
 
 import pytest
-from sqlalchemy.orm.session import Session, sessionmaker
-from backend import Beneficiary, Doctor, Speciality, DoctorSpeciality, dbase
+from backend import Beneficiary, Doctor, Speciality, DoctorSpeciality, dbase, session
 
 from backend.app import app
-
+from backend import settings
 # session = Session(bind="__all__", expire_on_commit=False, autocommit=True)
 
 
 @pytest.fixture(scope="session")
 def client():
     with app.app_context():
-        app.config["TESTING"] = True
+        app.config.from_object(settings.TestingConfig)
+        
         dbase.init_app(app)
-        # dbase.create_all()
+        dbase.create_all()
+        print(app.config["SQLALCHEMY_BINDS"])
         yield app.test_client()
 
+    
 
 @pytest.fixture()
 def doctor(speciality, address, license):
@@ -127,3 +130,32 @@ def delete_tables(doctor=None, beneficiary=None):
     # dbase.drop_all()
     dbase.session.commit()
     pass
+
+
+# Scheduling configurations
+@pytest.fixture
+def schedules():
+    schedules = [
+        dict(
+            doctorId="XSDSDSMM4x",
+            year=2021,
+            month="aug",
+            weeks={
+                "3": dict(
+                    days=["mon", "tue", "wed", "sat"],
+                    timeslots=[
+                        ["12:00", "13:00", "15:00"],
+                        ["14:00", "16:00"],
+                        ["8:00", "10:00", "15:00"],
+                        ["10:00", "13:00", "16:00", "18:00"],
+                    ],
+                )
+            },
+        )
+    ]
+    yield schedules
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    session.remove()

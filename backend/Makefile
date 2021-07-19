@@ -1,8 +1,8 @@
-setup:
+setup: 
 	# Preparing virtual environment to installing core dependencies
 	python -m venv .venv
 
-install:
+install: setup
 	# Updating package installer
 	# Installing dependecies
 	. .venv/bin/activate
@@ -10,16 +10,17 @@ install:
 	pip install -r requirements.txt &&\
 	wget -O hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
 	
-lint:
+lint: 
 	# Scanning dockerfile
 	./hadolint --ignore DL3003 ./Dockerfile
 	# Scanning source code
+	black ./
 	pylint --ignore=migrations -d W,C0114 app.py \
 		registration/microservice.py \
 		booking/microservice.py \
 		scheduling/microservice.py
 
-migrations: 
+migrations: install
 	. .venv/bin/activate 
 	flask db init --multidb
 	flask db stamp head

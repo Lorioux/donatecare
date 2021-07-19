@@ -1,12 +1,18 @@
-from operator import and_
-import sys
+from __future__ import absolute_import
+from logging import Logger
+from typing import Text
 
-sys.path.append("..")
 
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.expression import and_
+from sqlalchemy.sql.schema import ForeignKeyConstraint, UniqueConstraint
+from sqlalchemy.sql.sqltypes import PickleType
 
 from backend import dbase, initializer
 
+session = dbase.session
 
 class Schedule(dbase.Model):
     __table_args__ = {"extend_existing": True}
@@ -14,22 +20,35 @@ class Schedule(dbase.Model):
     __bind_key__ = "schedules"
 
     id = Column(Integer, primary_key=True)
-    date = Column(String(11))
-    time = Column(String(11))
-    week = Column(Integer)
-    year = Column(Integer)
-    doctor_id = Column(Integer)
+    weeks = Column(PickleType, nullable=False)
+    month = Column(String(3), nullable=False)
+    year = Column(Integer, nullable=False)
+    doctor_nif = Column(String(128), nullable=False)
+    # indexes = ForeignKeyConstraint(["month", "doctor_nif", "year"], \
+    #         ["schedule.month", "schedule.doctor_nif", "schedule.year"])
+    UniqueConstraint("month", "doctor_nif", "year", name="unique_schedule")
 
-    def __init__(self, **kwargs):
-        self.date = initializer("date", kwargs)
-        self.time = initializer("time", kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.year = initializer("year", kwargs)
-        self.week = initializer("week", kwargs)
-        self.doctor_id = initializer("doctor_id", kwargs)
+        self.weeks = initializer("weeks", kwargs)
+        self.month = initializer("month", kwargs)
+        self.doctor_nif = initializer("doctor_nif", kwargs)
+        
 
     def save(self):
-        dbase.session.add(self)
-        dbase.session.commit()
+        
+        schedule = self.getby_unique_keys(self.month, self.year, self.doctor_nif)
+        try:
+            if schedule is not None: 
+                schedule.weeks.update(self.weeks)
+                return self
+            session.add(self)
+            session.commit()
+            return self
+        except RuntimeError as error:
+            Logger("SCHEDULE").debug(msg=error.args, stack_info=True)
+            return None
 
     def getby_date(self, date):
         return Schedule.query.filter(date == date)
@@ -39,13 +58,20 @@ class Schedule(dbase.Model):
             and_(Schedule.date.like(date), Schedule.time.like(time))
         )
 
-    def getby_week(self, week, year, id=None):
-        if id:
+    def getby_unique_keys(self, month, year, doctor_nif=None):
+        if doctor_nif:
             return Schedule.query.filter(
-                and_(
-                    Schedule.week >= week,
-                    Schedule.year <= year,
-                    Schedule.doctor_id == id,
-                )
-            )
-        return Schedule.query.filter(and_(Schedule.week >= week, Schedule.year <= year))
+                and_(Schedule.month.like(month), Schedule.year <= year),
+                Schedule.doctor_nif == doctor_nif,
+            ).one_or_none()
+        return Schedule.query.filter(and_(Schedule.month.like(month), Schedule.year <= year))
+
+
+# class TimeSlot(Base):
+#     __tablename__ = "timeslots"
+#     __bind_key__ = "schedules"
+#     __table_args__ = {"extend_existing": True}
+
+#     id = Column(Integer, primary_key=True)
+#     slots = Column(PickleType, nullable=True)
+#     schedule = relationship("Schedule", back_populates="timeslots")

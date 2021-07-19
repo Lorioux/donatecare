@@ -43,7 +43,7 @@ def subscribers():
 def find_doctors():
     request_time = datetime.now()
     try:
-       
+
         data = request.get_json()
         criteria = request.args["criteria"]
 
@@ -51,26 +51,24 @@ def find_doctors():
         # find by speciality and location together
         if criteria == "speciality-location":
             doctors = Doctor().find_all(
-                criteria=criteria, \
-                    title=data["speciality"], \
-                        city=data["location"])
+                criteria=criteria, title=data["speciality"], city=data["location"]
+            )
 
         if criteria == "speciality":
-            doctors = Doctor().find_all(
-                criteria=criteria, \
-                    title=data["speciality"])
+            doctors = Doctor().find_all(criteria=criteria, title=data["speciality"])
 
         if criteria == "speciality-location-mode":
             doctors = Doctor().find_all(
-                criteria=criteria, \
-                    speciality=data["speciality"], \
-                        city=data["location"], \
-                            mode=data["mode"])
+                criteria=criteria,
+                speciality=data["speciality"],
+                city=data["location"],
+                mode=data["mode"],
+            )
 
         if criteria == "mode":
             doctors = Doctor().find_all(criteria=criteria, mode=data["mode"])
 
-        if criteria == "all" :
+        if criteria == "all":
             doctors = Doctor().find_all(criteria=criteria)
 
     except RuntimeError as error:
@@ -119,14 +117,14 @@ def find_doctors():
             }
         )
     template["metadata"]["responseTime"] = datetime.now()
-    
+
     return jsonify(template)
 
 
 @membership.route("/subscribe", methods=["POST"])
 def subscribe():
     data = request.get_json()
-
+    print(data)
     role = data["role"]
 
     if role in ["doctor", "beneficiary", "caregiver"]:
@@ -295,8 +293,8 @@ def licences(doctorid):
 def specialities(title=None):
     request_time = datetime.now()
     specs = None
-    
-    if title == None:
+
+    if title is None:
         specs = Speciality().getby_title(title)
     else:
         specs = Speciality().get_all()
@@ -316,10 +314,9 @@ def specialities(title=None):
         return jsonify({"response": "empty"})
 
     for speciality in specs:
-        template["summary"].append(dict(
-            title = speciality.title,
-            details = speciality.details
-        ))
+        template["summary"].append(
+            dict(title=speciality.title, details=speciality.details)
+        )
 
     response_time = datetime.now()
     template["metadata"]["responseTime"] = response_time
