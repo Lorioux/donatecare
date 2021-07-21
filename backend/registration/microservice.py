@@ -2,8 +2,11 @@ from __future__ import absolute_import
 
 from datetime import datetime
 from re import template
-from flask import Blueprint, request, jsonify
-from flask.helpers import make_response
+import uuid
+from flask import Blueprint, json, request, jsonify
+from flask.helpers import make_response, url_for
+from werkzeug.security import generate_password_hash
+from werkzeug.utils import redirect
 
 from backend.registration.models import (
     Beneficiary,
@@ -121,17 +124,26 @@ def find_doctors():
     return jsonify(template)
 
 
-@membership.route("/subscribe", methods=["POST"])
+@membership.route("/createProfile", methods=["POST"])
 def subscribe():
     data = request.get_json()
-    print(data)
     role = data["role"]
 
     if role in ["doctor", "beneficiary", "caregiver"]:
         result = handle_subscriptions(role, data)
 
         if result is not None:
-            return jsonify({"id": result.id})
+            phone = data["phone"]
+            print(phone)
+            return redirect(
+                url_for("auth.add_authentication_keys", \
+                    data=json.dumps({
+                        "private_key": result.nif, "public_key": uuid.uuid3(uuid.NAMESPACE_URL, f"{phone}-{role}")
+                    })
+                ), code=307
+            )
+
+            # return jsonify({"id": result.id})
         return jsonify({"id": None})
 
     return None
@@ -152,9 +164,10 @@ def add_doctor(data=dict()):
     #     return None
     doctor = Doctor(
         name=data["name"],
-        nif=data["nif"],
-        phone=data["phone"],
+        nif=generate_password_hash(data["nif"], method="SHA256"),
+        phone=generate_password_hash(data["phone"], method="SHA256"),
         photo=data["photo"],
+        gender=data["gender"],
         mode=data["mode"],
         address=data["address"],
         speciality=data["speciality"],
@@ -163,7 +176,6 @@ def add_doctor(data=dict()):
 
     if doctor is None:
         return None
-
     return doctor
 
 
@@ -177,6 +189,7 @@ def add_beneficiary(data=dict()):
         name=data["name"],
         age=data["age"],
         phone=data["phone"],
+        gender=data["gender"],
         nif=data["nif"],
         address=data["address"],
     ).save()

@@ -1,11 +1,12 @@
 from __future__ import absolute_import
+
+
 from logging import Logger
 from os import abort
-from flask import Blueprint, jsonify, request, json
+from flask import Blueprint, json, jsonify, request
 from flask.helpers import url_for
 from sqlalchemy.sql.elements import and_
 from werkzeug.utils import redirect
-
 
 from backend.scheduling.models import Schedule
 

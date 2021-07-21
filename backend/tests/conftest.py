@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import uuid
 from flask.signals import appcontext_tearing_down
 
 
@@ -20,8 +21,8 @@ def client():
         app.config.from_object(settings.TestingConfig)
 
         dbase.init_app(app)
-        dbase.create_all()
-        print(app.config["SQLALCHEMY_BINDS"])
+        # dbase.create_all()
+        # print(app.config["SQLALCHEMY_BINDS"])
         yield app.test_client()
 
 
@@ -154,6 +155,17 @@ def schedules():
         )
     ]
     yield schedules
+
+
+@pytest.fixture
+def subscriber():
+    subscriber = dict(
+        username="+351920400390",
+        password="cara+olho",
+        role="doctor",
+        public_id=str(uuid.uuid3(uuid.NAMESPACE_URL, "+351920400390")),
+    )
+    yield subscriber
 
 
 @app.teardown_appcontext

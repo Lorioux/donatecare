@@ -5,6 +5,7 @@ from backend import initialize_dbase, dbase, settings
 from backend.registration.microservice import membership
 from backend.booking.microservice import bookings
 from backend.scheduling.microservice import schedules
+from backend.authentication.microservice import auth
 
 app = Flask(__name__)
 app.config.from_object(settings.DevelopmentConfig)
@@ -16,6 +17,7 @@ with app.app_context():
     app.register_blueprint(membership)
     app.register_blueprint(bookings)
     app.register_blueprint(schedules)
+    app.register_blueprint(auth)
 
 
 @app.route("/")

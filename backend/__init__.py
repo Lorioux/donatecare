@@ -4,4 +4,5 @@ from backend.databases.config import *
 from backend.booking.models import *
 from backend.registration.models import *
 from backend.scheduling.models import *
+from backend.authentication.models import *
 from backend import settings

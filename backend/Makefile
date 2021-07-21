@@ -16,10 +16,7 @@ lint: install
 	sudo ./hadolint --ignore DL3003 ./Dockerfile
 	# Scanning source code
 	black ./
-	pylint --ignore=migrations -d W,C0114 app.py \
-		registration/microservice.py \
-		booking/microservice.py \
-		scheduling/microservice.py
+	pylint --ignore=migrations,settings.py,manage.py -d W ./*.py
 
 migrations: 
 	flask db init --multidb

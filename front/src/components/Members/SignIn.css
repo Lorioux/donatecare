@@ -1,0 +1,56 @@
+container {
+    display: grid;
+    grid-template-rows: 26px auto 56px;
+    z-index: 10;
+    min-width: 480px !important;
+}
+
+.signInForm {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.signInForm > input {
+    width: 100%;
+    height: 36px;
+    background-color: lightgray;
+    flex: 100% !important;
+    padding: 6px;
+    margin: 8px 16px 8px;
+    border-radius: 4px;
+    border: 1px solid lightblue;
+}
+.signInForm > div {
+    margin: 8px 16px 8px;
+}
+
+.titleContainer {
+    display: grid;
+    grid-template-columns: auto 56px;
+    margin-bottom: 56px;
+    border-bottom: 1px solid lightblue;
+}
+
+.titleContainer > span {
+    display: grid;
+    grid-template-columns: auto auto;
+    height: 36px;
+}
+
+.titleContainer > span > h2 {
+    margin: 4px;
+    justify-self: flex-start;
+}
+.titleContainer > i {
+    margin: 4px;
+    justify-self: flex-end;
+    border: 1px solid lightblue;
+    width: 100%;
+    font: 900;
+}
+
+.bottonsBar {
+    display: flex;
+    flex: content;
+    margin: 16px;
+}

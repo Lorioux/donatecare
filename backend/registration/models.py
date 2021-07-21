@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import and_
+from sqlalchemy.sql.schema import UniqueConstraint
 
 from backend import dbase, initializer
 
@@ -61,7 +62,10 @@ class DoctorMorada(dbase.Model):
 
 
 class Beneficiary(dbase.Model):
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        UniqueConstraint("name", "nif"),
+        {"extend_existing": True}
+    )
     __tablename__ = "beneficiary"
     __bind_key__ = "profiles"
 
@@ -99,6 +103,7 @@ class Beneficiary(dbase.Model):
             flat=address["flat"],
             zipcode=address["zipcode"],
             city=address["city"],
+            state=address["state"],
             country=address["country"],
         )
 
@@ -157,17 +162,20 @@ class Beneficiary(dbase.Model):
 
 
 class Doctor(dbase.Model):
-    __table_args__ = {"extend_existing": True}
+    __table_args__ = (
+        UniqueConstraint("name", "phone", "nif"),
+        {"extend_existing": True}
+    )
     __tablename__ = "doctor"
     __bind_key__ = "profiles"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(55), unique=True)  # unique=True
+    name = Column(String(55),)  # unique=True
     gender = Column(
         String(6),
     )
-    phone = Column(String(12), unique=True)  # unique=True
-    nif = Column(String(55), unique=True)  # unique=True
+    phone = Column(String(12),)  # unique=True
+    nif = Column(String(55),)  # unique=True
     photo = Column(String(128), default="/media/profiles/doctors/foto.jpg")
     mode = Column(String(55), default="present")
     specialities = relationship(
@@ -195,6 +203,7 @@ class Doctor(dbase.Model):
         self.photo = initializer("photo", kwargs)
         self.address = initializer("address", kwargs)
         self.mode = initializer("mode", kwargs)
+        self.gender = initializer("gender", kwargs)
         self.speciality = initializer("speciality", kwargs)
         self.license = initializer("license", kwargs)
 
@@ -207,28 +216,28 @@ class Doctor(dbase.Model):
             licenses = self.link_licenses(licenses=self.license)
             address = self.link_addresses(address=self.address)
             if speciality is None:
-                print("Test 1")
+                # print("Test 1")
                 return None
             elif licenses is None:
-                print("Test 2: ", str(licenses))
+                # print("Test 2: ", str(licenses))
                 return None
 
             elif address is None:
-                print("Test3")
+                # print("Test3")
                 return None
 
             else:
-                print("Test 4")
+                # print("Test 4")
                 self.specialities.append(speciality)
-                print(self.specialities[0].title)
-                print(speciality.doctors[0].name)
+                # print(self.specialities[0].title)
+                # print(speciality.doctors[0].name)
                 for lic in licenses:
                     if lic is not None:
                         self.licenses.append(lic)
-                print(self.licenses[0].code)
+                # print(self.licenses[0].code)
 
                 self.addresses.append(address)
-                print(self.addresses[0].road, " ", self.addresses[0].country.name)
+                # print(self.addresses[0].road, " ", self.addresses[0].country.name)
                 session.commit()
                 return self
 
@@ -236,6 +245,7 @@ class Doctor(dbase.Model):
             print(e)
             return None
 
+    
     def delete(self):
         session.delete(self)
         session.commit()
@@ -296,6 +306,7 @@ class Doctor(dbase.Model):
             flat=address["flat"],
             zipcode=address["zipcode"],
             city=address["city"],
+            state=address["state"],
             country=address["country"],
         )
         try:

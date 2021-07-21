@@ -5,7 +5,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """
-    Base configuration class. Contains default configuration settings + configuration settings applicable to all environments.
+    Base configuration class. Contains default configuration settings +
+     configuration settings applicable to all environments.
     """
 
     # Default settings
@@ -15,7 +16,7 @@ class Config:
     WTF_CSRF_ENABLED = True
 
     # Settings applicable to all environments
-    SECRET_KEY = os.urandom(128)
+    SECRET_KEY = os.urandom(64).hex()
 
     MAIL_SERVER = "smtp.googlemail.com"
     MAIL_PORT = 465
@@ -30,6 +31,7 @@ class Config:
         "booking": "sqlite:///databases/booking.db",
         "profiles": "sqlite:///databases/profiles.db",
         "schedules": "sqlite:///databases/schedules.db",
+        "subscribers": "sqlite:///databases/subscribers.db",
     }
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
