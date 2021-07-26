@@ -155,7 +155,7 @@ def create_uuid_value():
 
 
 @auth.route("/addAuthenticationKeys", methods=["POST"])
-def add_auth_keys():
+def add_authentication_keys():
 
     data = json.loads(request.args.get("data", type=str))
     # response = None
