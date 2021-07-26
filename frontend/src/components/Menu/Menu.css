@@ -3,7 +3,8 @@
     /*PAGE SIDES PAD*/
     --page-main-padding: 5% !important; 
 
-    --menu-block-width: 100% !important;
+    --menu-block-width: 1200px !important;
+    --menu-block-align: center;
     --menu-block-height: fit-content !important;
     --menu-block-ginicolor: whitesmoke;
     --menu-height: fit-content !important;
@@ -65,6 +66,9 @@
 
 @media screen and (max-width: 700px) {
     :root {
+        /* MENU BLOCK */
+        --menu-block-align: inherit;
+
         --menu-icon-visibility: visible;
         --menu-actions-visibility: hidden;
         --menu-action-max-width: 100% !important;
@@ -84,6 +88,9 @@
         /* MENU CLOSE BUTTON */
         --menu-actions-close: inline-block;
     }
+    .signInAction > FontAwesomeIcon {
+        display: none;
+    }
     
 }
 
@@ -102,10 +109,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 16px;
-    width: var(--menu-block--width);
+    max-width: var(--menu-block--width);
     height: var(--menu-block-height);
     visibility: var(--menu-block-visibility);
     justify-items: flex-end;
+    align-self: var(--menu-block-align);
     padding: 26px;
     background: var(--menu-backgound-color); /*linear-gradient(var(--menu-block-ginicolor),*/
 }
@@ -114,7 +122,7 @@ menu {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    width: 100% !important;
+    width: max-content !important;
     /* background-color: var(--menu-backgound-color); */
     margin: 0;
     height: var(--menu-height);
@@ -171,7 +179,8 @@ menu {
     border-right: var(--menu-action-TRL-border);
     border-left: var(--menu-action-TRL-border);
     border-radius: var(--menu-action-bradious);
-    justify-self: right;
+    /* justify-self: right; */
+    text-align: start;
     padding-top: 10px;
     /* background-color: lightgray; */
 }

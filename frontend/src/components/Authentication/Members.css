@@ -1,0 +1,26 @@
+
+.titleContainer {
+    display: grid;
+    grid-template-columns: auto minmax(max-content, auto );
+    margin-bottom: 56px;
+    border-bottom: 1px solid lightblue;
+}
+
+.titleContainer > span {
+    display: grid;
+    grid-template-columns: auto;
+    height: 36px;
+}
+
+.titleContainer > span > h2 {
+    margin: 4px;
+    justify-self: flex-start;
+}
+.titleContainer > i {
+    margin: 4px;
+    justify-self: flex-end;
+    border: 1px solid lightblue;
+    width: max-content;
+    font-weight: 600;
+    padding: 0px 6px 0px;
+}

@@ -17,7 +17,8 @@
         --search-orientation: column;
         --search-in-grow: 1;
         --search-form-width: 100% !important;
-        --search-submit-min-width: var(--search-input-width);
+        /* --search-submit-min-width: var(--search-input-width); */
+        --search-submit-min-width: 100%
     }
 }
 
@@ -45,7 +46,7 @@
     height: 36px;
     background-color: lightgray;
     flex: var(--search-submit-width);
-    /* min-width: var(--search-submit-min-width); */
+    min-width: var(--search-submit-min-width);
     padding: 6px;
     margin: 8px 16px 8px;
     border-radius: 4px;

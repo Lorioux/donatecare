@@ -1,0 +1,73 @@
+:root {
+    --input-fields-dir: "row";
+    --input-fields-width: 100% !important;
+    --phone-gender-dob-dir: var(--input-fields-dir);
+    --pgdob-width-flex: 30% !important;
+}
+
+@media screen and (max-width: 599.99px) {
+    :root {
+        --input-fields-width: 100% !important;
+        --input-fields-dir: "column";
+        --phone-gender-dob-dir: "column-reverse";
+        --pgdob-width-flex: 100% !important;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    :root {
+        --input-fields-width: 50% !important;
+        --input-fields-dir: "row";
+    }
+}
+
+.signUpForm > .textField {
+    height: 36px;
+    /* background-color: lightgray; */
+    flex: var(--input-fields-width);
+    padding: 6px;
+    margin: 16px 16px 16px;
+    border-radius: 4px;
+    /* border: 1px solid lightblue; */
+}
+
+.signUpForm {
+    display: flex;
+    flex-direction: var(--input-fields-dir);
+    flex-wrap: wrap;
+    max-width: 650px;
+}
+
+.phone-gender-dob {
+    display: flex;
+    flex-direction: var(--phone-gender-dob-dir);
+    /* grid-template-columns: 1fr minmax(min-content, 1fr) max-content; */
+    /* grid-auto-rows: auto; */
+    height: max-content;
+    /* overflow-x:scroll; */
+    padding: 6px;
+    margin: 16px 16px 16px;
+    column-gap: 16px;
+
+    row-gap: 16px;
+    border: none;
+}
+
+.phone {
+    max-width: 280px;
+}
+
+.birthday, .gender, .phone {
+    float: var(--pgdob-width-flex);
+}
+
+.subscribeBtn {
+    color: lightslategray;
+    border: 1px solid lightslategray;
+    font-weight: 700;
+    margin-top: 16px 26px 16px;
+}
+
+.country {
+    text-align: start;
+}

@@ -1,6 +1,6 @@
 import { AppBar, Button, 
     Card, CardActions, 
-    CardContent, CardHeader, 
+    CardContent, 
     createStyles, Dialog, 
     IconButton, makeStyles, 
     Slide, TextField, 

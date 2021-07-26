@@ -1,8 +1,8 @@
 import React from "react"
 import ReactDOM from "react-dom"
 
-import SignIn from "../Members/SignIn"
-import Memebrs from "../Members/Members"
+import SignIn from "../Authentication/SignIn"
+import Memebrs from "../Authentication/Members"
 import { CallForAction } from '../Home/FrontDesk'
 import Donate from "../Donating/DonateNow"
 
@@ -151,22 +151,19 @@ class Menu extends React.Component<{}, MenuState> {
 
     SignInUpLinks(){
         // eslint-disable-next-line
-        const joinus = (
-            <span className="signUpAction menuAction"
-                style={{
-                    backgroundColor: "lightblue",
-                }}>
+        const open = () => {
+            window.location.href="/members/Authentication"
+        }
 
-                <a href="joinUs"><em><strong>JOIN US</strong></em></a>
-            </span>
-        )
         return(
-            <span className="signInAction menuAction">
+            <span className="signInAction menuAction"
+                onClick = {open}
+            >
                 <FontAwesomeIcon icon={faUnlock} style={{
                     color: "whitesmoke",
                     marginRight: 4
                 }} />
-                <em>SignIn</em>                
+                <em>Members</em>                
             </span>
         )
     }

@@ -160,10 +160,14 @@ def schedules():
 @pytest.fixture
 def subscriber():
     subscriber = dict(
-        username="+351920400390",
-        password="cara+olho",
+        username="+351930400399",
+        password="sacadcadffadadadadas",
         role="doctor",
-        public_id=str(uuid.uuid3(uuid.NAMESPACE_URL, "+351920400390")),
+        dob = "2012/03/26",
+        phone = "+351930400399",
+        fullname = "John Doe",
+        country = "Portugal",
+        gender="Male"
     )
     yield subscriber
 
