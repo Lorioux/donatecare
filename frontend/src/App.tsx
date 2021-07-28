@@ -8,6 +8,7 @@ import Members from './components/Authentication/Members'
 import FrontDesk, {CallForAction } from './components/Home/FrontDesk'
 import SearchBlock from "./components/Searching/Search"
 import Practitioner from './components/Practitioners/Practitioner'
+import PractitionerProfile from './components/Practitioners/PractitionerProfile'
 
 // import Footer from './components/Footer/Footer'
 
@@ -35,6 +36,7 @@ const App = () => {
             <Route exact path="/donate" component={Members} />
             <Route exact path="/tryforfree" component={Members} />
             <Route exact path="/practitioners" component={Practitioner} />
+            <Route exact path="/members/practitioners" component={PractitionerProfile} />
           </Switch>
           </Router>
         </React.Fragment>

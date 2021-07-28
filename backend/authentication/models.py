@@ -75,7 +75,7 @@ class Subscriber(dbase.Model):
     def get_one(self, userid: str, role: str):
         print(userid)
         return session.query(Subscriber).filter(
-            Subscriber.role.like(role), Subscriber.user_name.ilike(userid)
+            Subscriber.role.like(role), Subscriber.user_name.like(userid)
             ).first()
 class AuthenticationKey (dbase.Model):
 

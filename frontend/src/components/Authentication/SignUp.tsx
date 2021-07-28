@@ -4,6 +4,7 @@ import {Snackbar} from "@material-ui/core"
 import MuiAlert, {AlertProps} from "@material-ui/lab/Alert"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
+// import axios from "axios"
 
 import "./SignUp.css"
 
@@ -234,21 +235,7 @@ class SignUp extends React.Component<SignUpProps, SignUpState> {
     onSubscriptionSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
         const form = document.querySelector<HTMLFormElement>(".signUpForm")
         form?.checkValidity()
-        // form?.requestSubmit()
-        
-        
-        // let isValid = true 
-        // let values = [role, name, surname, dob, phone, gender]
-        // values.forEach((value, index) => {
-            
-        //     if (value.length <= 4){
-        //         isValid = false;
-        //         console.log(index)
-        //         return;
-        //     }
-        //     // console.log(value)
-        // })
-        
+                
         if (form?.reportValidity()){
             // let date = new Date()
             const role = form?.myrole.value 
@@ -274,14 +261,24 @@ class SignUp extends React.Component<SignUpProps, SignUpState> {
                 country: country
             }
             // console.log(data)                
+            // axios.post(
+            //     "/authentication/createCredentials",
+            //     JSON.stringify(data),
+            //     {
+            //         headers : {
+            //             "Content-Type": "application/json"
+            //         },
+            //     }
+            // ).then(success => {
 
+            // })
             fetch(
                 "/authentication/createCredentials",
                 {
                     method: "POST",
                     mode: "cors",
-                    headers: {
-                        'Content-Type': "application/json",
+                    headers : {
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify(data)
                 }
@@ -297,6 +294,8 @@ class SignUp extends React.Component<SignUpProps, SignUpState> {
                     response.json().then(
                         data => {
                             this.handleFeedback(true, data["response"], "success")
+                            // const public_id = data["public_id"]
+                            window.location.href = `/members/practitioners`
                         }
                     )
                     console.log(response.headers.get("access_token"))
