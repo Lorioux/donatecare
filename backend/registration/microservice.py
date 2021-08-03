@@ -1,48 +1,42 @@
 from __future__ import absolute_import
 
 from datetime import datetime
-from re import template
 import uuid
+
 from flask import Blueprint, json, request, jsonify
 from flask.helpers import make_response, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import redirect
 
+from flasgger import swag_from
+
 from backend.registration.models import (
     Beneficiary,
-    Country,
     Doctor,
     Address,
     License,
     Speciality,
 )
 
-membership = Blueprint(
-    "members",
+from backend.authentication import token_required
+from backend import Subscriber
+
+profiles = Blueprint(
+    "profiles",
     __name__,
     static_url_path="/media/uploads/",
     static_folder="media/uploads",
-    url_prefix="/members",
+    url_prefix="/v1",
 )
 
 
-@membership.route("/profiles", methods=["GET"])
+@profiles.route("/", methods=["GET"])
 def subscribers():
-    role = request.path
-    print(role)
-    beneficiary = Beneficiary.query.all()
-    return jsonify(
-        {
-            "Full name": beneficiary[0].fullname,
-            "Age": beneficiary[0].age,
-            "Phone": beneficiary[0].phone,
-            "NIF": beneficiary[0].nif,
-        }
-    )
+    return jsonify({"response":"Not Implemented"})
 
 
-@membership.route("/doctors", methods=["GET"])
-@membership.route("/doctors?criteria=<string:criteria>", methods=["GET"])
+@profiles.route("/practitioners", methods=["GET"])
+@profiles.route("/practitioners/findByCriteria?criteria=<string:criteria>", methods=["GET"])
 def find_doctors():
     request_time = datetime.now()
     try:
@@ -94,8 +88,8 @@ def find_doctors():
     for doctor in doctors:
         address = list(
             dict(
-                road=addr.road,
-                flat=addr.flat,
+                street_name=addr.street_name,
+                door_number=addr.door_num,
                 zipcode=addr.zipcode,
                 state=addr.state,
                 city=addr.city,
@@ -111,7 +105,7 @@ def find_doctors():
         # print(licenses)
         template["summary"].append(
             {
-                "name": doctor.name,
+                "fullname": doctor.full_name,
                 "identity": doctor.nif,
                 "speciality": specialities,
                 "licenses": licenses,
@@ -124,9 +118,12 @@ def find_doctors():
     return jsonify(template)
 
 
-@membership.route("/createProfile", methods=["POST"])
-def subscribe():
-    data = request.get_json()
+@token_required
+def create_profile(current_user: Subscriber = None, data: dict=None):
+    
+    if data is None:
+        data = request.get_json()
+    
     role = data["role"]
 
     if role in ["doctor", "beneficiary", "caregiver"]:
@@ -134,74 +131,104 @@ def subscribe():
 
         if result is not None:
             phone = data["phone"]
-            print(phone)
+
             return redirect(
-                url_for("auth.add_authentication_keys", \
-                    data=json.dumps({
-                        "private_key": result.nif, "public_key": uuid.uuid3(uuid.NAMESPACE_URL, f"{phone}-{role}")
-                    })
-                ), code=307
+                url_for(
+                    "auth.add_authentication_keys",
+                    data=json.dumps(
+                        {
+                            "private_key": result.nif,
+                            "public_key": uuid.uuid3(
+                                uuid.NAMESPACE_URL, f"{phone}-{role}"
+                            ),
+                        }
+                    ),
+                ),
+                code=307,
             )
 
             # return jsonify({"id": result.id})
-        return jsonify({"id": None})
+        return make_response(
+            "Profile not created", 403, {"response": "Provide valid data"}
+        )
 
-    return None
+    return make_response({"Error":"Too many errors", "message":"Check your inputs"}), 403
 
 
 def handle_subscriptions(role, data):
     if role == "doctor":
-        return add_doctor(data=data)
+        return add_practitioner(data=data)
     if role == "beneficiary":
         return add_beneficiary(data=data)
     return None
 
 
-@membership.route("/updateDoctorProfile", methods=["PUT"])
-def add_doctor(data=dict()):
+@token_required
+def add_practitioner(current_user: Subscriber = None, data: dict = None):
     # address_id = add_member_address(data['address'])
     # if address_id is None:
     #     return None
+    private_key = current_user.access_keys
+
+    
     doctor = Doctor(
-        name=data["name"],
-        nif=generate_password_hash(data["nif"], method="SHA256"),
+        fullname=data["fullname"],
+        taxid=generate_password_hash(data["taxid"], method="SHA256"),
         phone=generate_password_hash(data["phone"], method="SHA256"),
-        photo=data["photo"],
+        # photo=data["photo"],
         gender=data["gender"],
         mode=data["mode"],
-        address=data["address"],
-        speciality=data["speciality"],
-        license=data["license"],
-    ).save()
+        birthdate=data["birthdate"],
+    )
 
-    if doctor is None:
-        return None
+    entity = doctor.check_uniqueness(data["phone"], data["taxid"])
+
+    if entity:
+        return entity 
+
+
+    if doctor.save() is None:
+        return make_response({"Error": "Failed to add practitioner"}), 403
+
+    # handle specialities addition
+    if not add_speciality(doctor, data.get("specialities")):
+        doctor.delete()
+        return make_response({"Error": "Failed to add specialities"}), 403
+
+    if not add_license(doctor, data.get("licences")):
+        doctor.delete()
+        return make_response({"Error": "Failed to add licences"}), 403
+
+    if not add_residence(doctor, data.get("addresses")):
+        doctor.delete()
+        return make_response({"Error": "Failed to add addresses"}), 403
+    
     return doctor
 
 
-@membership.route("/updateBenefiaciaryProfile", methods=["PUT"])
-def add_beneficiary(data=dict()):
-    # address_id = add_member_address(data["address"])
-    # if address_id is None:
-    #     return None
-
+@token_required
+def add_beneficiary(current_user: Subscriber = None, data=dict()):
+    
     beneficiary = Beneficiary(
-        name=data["name"],
-        age=data["age"],
-        phone=data["phone"],
+        fullname=data["fullname"],
+        birthdate=data["birthdate"],
+        phone=generate_password_hash(data["phone"], method="SHA256"),
         gender=data["gender"],
-        nif=data["nif"],
+        taxid=generate_password_hash(data["taxid"], method="SHA256"),
         address=data["address"],
     ).save()
 
     if beneficiary is None:
-        return None
+        return make_response({"Error": "Failed to add beneficiary"}), 403
 
+    if not add_residence(beneficiary, data.get("addresses")):
+        return make_response({"Error": "Failed to add addresses"}), 403
     return beneficiary
 
 
-@membership.route("/beneficiaries", methods=["GET"])
-def find_beneficiaries(*args, **kwargs):
+@profiles.route("/beneficiaries", methods=["GET"])
+@token_required
+def find_beneficiaries(current_user: Subscriber = None, *args, **kwargs):
     request_time = datetime.now()
     beneficiaries = Beneficiary().find_all(criterion="city", name="Lisbon")
     # if beneficiaries is None or beneficiaries == []:
@@ -247,14 +274,9 @@ def find_beneficiaries(*args, **kwargs):
     return jsonify(template)
 
 
-@membership.route("/updateMemberAddress")
-def add_member_address(data=dict()):
-    # get or add the country
-    # country_id = Country(name=data["country"]).find_by("name")
-
-    # if country_id is None:
-    #     return None
-    # data["country"] = country_id
+@profiles.route("/updateMemberAddress")
+@token_required
+def add_member_address(current_user: Subscriber = None, data=dict()):
     address_id = Address(
         road=data["road"],
         flat=data["flat"],
@@ -266,9 +288,10 @@ def add_member_address(data=dict()):
     return address_id
 
 
-@membership.route("/licenses/<int:doctorid>", methods=["GET"])
-@membership.route("/doctor/<int:doctorid>/licences")
-def licences(doctorid):
+@profiles.route("/licenses/<int:doctorid>", methods=["GET"])
+@profiles.route("/doctor/<int:doctorid>/licences")
+@token_required
+def licences(current_user: Subscriber = None, doctorid=None):
     request_time = datetime.now()
     licenses = Doctor.query.get(doctorid).licenses
     print(licenses)
@@ -290,9 +313,9 @@ def licences(doctorid):
             dict(
                 code=license.code,
                 issue_date=license.issue_date,
-                valid_date=license.valid_date,
-                issuer=license.issuer,
-                country=license.country,
+                end_date=license.end_date,
+                issuingorg=license.issuingorg,
+                issuingcountry=license.issuingcountry,
                 certificate=license.certificate,
             )
         )
@@ -301,9 +324,10 @@ def licences(doctorid):
     return response
 
 
-@membership.route("/allSpecicialities", methods=["GET"])
-@membership.route("/findSpeciality?title=<string:title>", methods=["GET"])
-def specialities(title=None):
+@profiles.route("/allSpecicialities", methods=["GET"])
+@profiles.route("/findSpeciality?title=<string:title>", methods=["GET"])
+@token_required
+def specialities(current_user: Subscriber = None, title=None):
     request_time = datetime.now()
     specs = None
 
@@ -334,3 +358,160 @@ def specialities(title=None):
     response_time = datetime.now()
     template["metadata"]["responseTime"] = response_time
     return jsonify(template)
+
+
+@profiles.route('/updateSpeciality', methods=['POST', 'PUT'])
+@token_required
+def handle_speciality_update(current_user: Subscriber=None, content: dict = None):
+    # validate content
+    if content and "title" in content and "description" in content:
+        pass
+
+
+@profiles.route("/practitioner/createProfile", methods=["POST", "PUT"])
+# @token_required
+def create_practitioner_profile(current_user: Subscriber=None):
+
+    profile : dict = request.get_json()
+    role = "practitioner"
+
+    # validate the request
+    if validate_profile_entries(profile, role):
+
+        for addr in profile.get("addresses"):
+            validkeys, check = validate_address_entries(addr)
+            if not check:
+                return make_response({"Error" : "Wrong address keys",
+                    "Valid keys" : validkeys
+                    }), 403
+        
+        for specialiy in profile.get("specialities"):
+            validkeys, check = validate_speciality_entries(specialiy)
+            if not check:
+                return make_response({"Error" : "Wrong speciality keys",
+                    "Valid keys" : validkeys
+                    }), 403
+        
+        for license in profile.get("licences"):
+            validkeys, check = validate_license_entries(license)
+            if not check:
+                return make_response({"Error" : "Wrong license keys",
+                    "Valid keys" : validkeys
+                    }), 403
+    
+    return create_profile(data=profile)    
+
+
+@profiles.route("/beneficiary/createProfile")
+@token_required
+def create_beneficiary_profile(current_user: Subscriber=None):
+    
+    profile : dict = request.get_json()
+    role = "beneficiary"
+    
+    # validate the request
+    if validate_profile_entries(profile, role):
+        validkeys, check = validate_address_entries(profile.get("address"))
+        if not check:
+             return make_response({"Error" : "Wrong address keys",
+                "Valid keys" : validkeys
+                }), 403
+    
+    return create_profile(data=profile)    
+
+
+def add_speciality(practitioner: Doctor, specialities: list):
+    for spec in specialities:
+        speciality = Speciality(title=spec.get("title"), description=spec.get("description")) \
+            .save_with_practitioner(practitioner)
+        if speciality is None:
+            return False
+    return True
+
+
+def add_license(practitioner: Doctor, licences: list):
+    for lic in licences:
+        license = License(
+            code=lic.get("code"),
+            enddate=lic.get("enddate"),
+            issuedate=lic.get("issuedate"),
+            issuingcountry=lic.get("issuingcountry"),
+            issuingorg=lic.get("issuingorg"),
+            certificate=lic.get("certificate")
+        ).save_with_licensee(practitioner)
+        if license is None:
+            return False
+    return True
+
+
+def add_residence(resindent:any, addresses: list):
+    for addr in addresses:
+        address = Address(
+            city=addr.get("city"),
+            country= addr.get("country"),
+            doornumber=addr.get("doornumber"),
+            zipcode=addr.get("zipcode"),
+            state=addr.get("state"),
+            streetname=addr.get("streetname")
+        ).save_with_resident(resindent)
+        if address is None:
+            return False 
+    return True
+
+
+def validate_address_entries(address: dict):
+    keys = {
+        "city",
+        "country",
+        "doornumber",
+        "zipcode",
+        "state",
+        "streetname"
+    }
+    #print(list(address.keys()))
+    return list(keys), set(address.keys()).difference(keys) == {}
+
+def validate_speciality_entries(speciality: dict):
+    keys = {"description",
+        "title"}
+    
+    return keys, set(speciality.keys()).difference(keys) == {}
+
+
+def validate_license_entries(license: dict):
+    keys = {
+        "code",
+        "enddate",
+        "issuedate",
+        "issuingcountry",
+        "issuingorg",
+        "certificate"
+    }
+    return list(keys), set(license.keys()).difference(keys) == {}
+
+# def validate_mode_entry(mode)
+
+def validate_profile_entries(profile_entry: dict, role: str):
+    if role == "practitioner":
+        keys = {
+            "addresses",
+            "birthdate",
+            "licences",
+            "fullname",
+            "phone",
+            "role",
+            "specialities",
+            "taxid",
+            "mode",
+            "gender"
+        }
+    keys = {
+        "addresses",
+        "birthdate",
+        "fullname",
+        "phone",
+        "role",
+        "taxid",
+        "gender"
+    }
+    return list(keys), set(profile_entry.keys()).difference(keys) == {}

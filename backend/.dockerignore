@@ -1,0 +1,12 @@
+.gitignore
+.venv
+.venx
+hadolint
+.github
+.circleci
+.pytest_cache
+__pycache__
+.vscode
+.pylintrc
+test-requirements.txt
+*.db

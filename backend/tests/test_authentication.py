@@ -1,25 +1,47 @@
 from __future__ import absolute_import
 import json
 
-from flask import session
+from flask import url_for
+import pytest
 
-def test_07_signup(client, subscriber):
+@pytest.mark.run(order=3)
+def test_signup(client, subscriber):
+    url = url_for("auth.create_credencials")
     rv = client.post(
-            "/authentication/createCredentials",
-            data=json.dumps(subscriber), \
-                content_type="application/json", \
-                    follow_redirects=True)
+        url,
+        data=json.dumps(subscriber),
+        content_type="application/json",
+        follow_redirects=True,
+    )
 
-    assert "successfully" in str(rv.data)
+    assert "success" in str(rv.data)
 
-def test_08_login(client, subscriber):
+
+
+@pytest.mark.run(order=4)
+def test_login(client, subscriber):
+    url = url_for("auth.authenticate")
     rv = client.post(
-            "/authentication/login",
-            data=json.dumps({
+        url,
+        data=json.dumps(
+            {
                 "role": subscriber["role"],
                 "userid": subscriber["username"],
-                "password": subscriber["password"]
-            }), \
-                content_type="application/json", \
-                    follow_redirects=True)
-    assert "successfully" in str(rv.data)
+                "password": subscriber["password"],
+            }
+        ),
+        content_type="application/json",
+        follow_redirects=True,
+    )
+    assert "success" in str(rv.data)
+
+
+@pytest.mark.run(order=11)
+def test_logout(client):
+    url = url_for("auth.deauthenticate")
+    rv = client.post(
+        url,
+        follow_redirects=True
+    )
+
+    assert "success" in str(rv.data)

@@ -1,7 +1,43 @@
 import os
+import sys
+sys.path.append('..')
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+from dotenv import load_dotenv
 
+# basedir = os.path.abspath(os.path.dirname(__file__))
+
+PSQL_CONNECT_TO = os.environ.get('PSQL_CONNECT_TOUT', 10)
+PSQL_SERVER_PO = os.environ.get('POSL_SERVER_PORT', 5432)
+
+BOOKING = {
+    'PSQL_USERNAME': os.environ.get('PSQL_USERNAME', 'postgres'),
+    'PSQL_PASSWORD': os.environ.get('PSQL_PASSWORD', 'password'),
+    'PSQL_SVR_PORT': PSQL_SERVER_PO,
+    'PSQL_HOSTNAME': os.environ.get('PSQL_HOSTNAME', 'localhost'),
+    'PSQL_DATABASE': os.environ.get('PSQL_DB_BOOKING', 'donatecare'),
+}   
+
+PROFILES = BOOKING.copy()
+PROFILES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_PROFILES', 'donatecare')
+
+SCHEDULES = BOOKING.copy()
+SCHEDULES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+
+SUBSCRIBERS = BOOKING.copy() 
+SUBSCRIBERS['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+
+class VARIABLES(object):
+    pass
+    
+def setup_environ():
+    load_dotenv('./.env', )
+    if os.environ.get('SECRET_KEY', '') == '':
+        SECRET_KEY = os.urandom(128).hex('-')
+        os.environ['SECRET_KEY'] = SECRET_KEY
+        print("SETTING_ENV")
+    pass
+
+setup_environ()
 
 class Config:
     """
@@ -16,7 +52,7 @@ class Config:
     WTF_CSRF_ENABLED = True
 
     # Settings applicable to all environments
-    SECRET_KEY = os.urandom(64).hex()
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
     MAIL_SERVER = "smtp.googlemail.com"
     MAIL_PORT = 465
@@ -26,12 +62,37 @@ class Config:
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", default="")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_USERNAME", default="")
     MAIL_SUPPRESS_SEND = False
+    
+    JSONIFY_PRETTYPRINT_REGULAR = True
 
+    PSQL_CONNECT_TO = os.environ.get('PSQL_CONNECT_TOUT', 10)
+    PSQL_SERVER_PO = os.environ.get('POSL_SERVER_PORT', 5432)
+    
+    BOOKING = {
+        'PSQL_USERNAME': os.environ.get('PSQL_USERNAME', 'postgres'),
+        'PSQL_PASSWORD': os.environ.get('PSQL_PASSWORD', 'password'),
+        'PSQL_SVR_PORT': PSQL_SERVER_PO,
+        'PSQL_HOSTNAME': os.environ.get('PSQL_HOSTNAME', 'localhost'),
+        'PSQL_DATABASE': os.environ.get('PSQL_DB_BOOKING', 'donatecare'),
+        'PSQL_CON_TOUT': PSQL_CONNECT_TO
+    }   
+
+    PROFILES = BOOKING.copy()
+    PROFILES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_PROFILES', 'donatecare')
+
+    SCHEDULES = BOOKING.copy()
+    SCHEDULES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+
+    SUBSCRIBERS = BOOKING.copy() 
+    SUBSCRIBERS['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+
+    PSQL_CONNECT_URL = "postgres://%(PSQL_USERNAME)s:%(PSQL_PASSWORD)s@%(PSQL_HOSTNAME)s:%(PSQL_SVR_PORT)s/%(PSQL_DATABASE)s?connect_timeout=%(PSQL_CON_TOUT)s&application_name=DONATECARE"
+    
     SQLALCHEMY_BINDS = {
-        "booking": "sqlite:///databases/booking.db",
-        "profiles": "sqlite:///databases/profiles.db",
-        "schedules": "sqlite:///databases/schedules.db",
-        "subscribers": "sqlite:///databases/subscribers.db",
+        'booking': f'{PSQL_CONNECT_URL}' % BOOKING,
+        'profiles': f'{PSQL_CONNECT_URL}' % PROFILES,
+        'schedules': f'{PSQL_CONNECT_URL}' % SCHEDULES,
+        'subscribers': f'{PSQL_CONNECT_URL}' % SUBSCRIBERS,
     }
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -66,15 +127,18 @@ class TestingConfig(Config):
     SESSION_COOKIE_NAME = "donatecare"
 
     JSONIFY_PRETTYPRINT_REGULAR = True
+
+    SQLALCHEMY_BINDS = {
+        "booking": "sqlite:///databases/booking.db",
+        "profiles": "sqlite:///databases/profiles.db",
+        "schedules": "sqlite:///databases/schedules.db",
+        "subscribers": "sqlite:///databases/subscribers.db",
+    }
     # SERVER_NAME = "backend.localhost"
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_BINDS = {
-        "booking": "sqlite:///databases/booking.db",  # set postsql
-        "profiles": "sqlite:///databases/profiles.db",  # set postsql
-        "schedules": "sqlite:///databases/schedules.db",  # set postsql
-    }
+    
     ENV = "production"
     DEBUG = False
-    JSONIFY_PRETTYPRINT_REGULAR = True
+    

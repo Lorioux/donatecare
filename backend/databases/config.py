@@ -15,7 +15,7 @@ migrate = Migrate()
 
 Base = declarative_base()
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
-
+# session = scoped_sess(dbase)
 
 def initializer(key, kwargs):
     if kwargs.keys().__contains__(key):
@@ -27,7 +27,7 @@ def initializer(key, kwargs):
 @click.option("--tables", default="all")
 @with_appcontext
 def populate_tables(tables):
-    click.echo("Initializing all tables")
+    click.echo("Populating tables: {}".format(tables))
     initialize_dbase(current_app)
 
 
@@ -35,7 +35,7 @@ def populate_tables(tables):
 @click.option("--tables", default="all")
 @with_appcontext
 def erase_tables(tables):
-    click.echo("Deleting all tables: {}".format(tables))
+    click.echo("Deleting tables: {}".format(tables))
     delete()
 
 

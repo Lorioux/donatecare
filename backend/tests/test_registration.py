@@ -6,7 +6,7 @@ from flask import json
 # from backend.tests.conftest import delete_tables
 
 
-def test_00_add_doctor(client, doctor):
+def test_01_add_doctor(client, doctor):
 
     rv = client.post(
         "/members/createProfile",
@@ -14,14 +14,11 @@ def test_00_add_doctor(client, doctor):
         content_type="application/json",
         follow_redirects=True,
     )
-    print(rv)
-    id = rv.get_json()["id"]
-    # time.sleep(15)
-    # delete_tables(doctor)
-    assert None != id
+
+    assert "successful" in str(rv.data)
 
 
-def test_01_add_beneficiary(client, beneficiary):
+def test_02_add_beneficiary(client, beneficiary):
     rv = client.post(
         "/members/createProfile",
         data=json.dumps(beneficiary),
@@ -32,13 +29,13 @@ def test_01_add_beneficiary(client, beneficiary):
     assert None != id
 
 
-def test_02_list_licences(client, license):
+def test_03_list_licences(client, license):
     rv = client.get("/members/doctor/1/licences", follow_redirects=True)
 
     assert license[0]["code"] in str(rv.data)
 
 
-def test_03_find_doctors(client):
+def test_04_find_doctors(client):
     criteria = [
         "speciality",
         "speciality-localtion",
@@ -96,7 +93,7 @@ def test_03_find_doctors(client):
             assert "speciality" in str(rv.data)
 
 
-def test_04_list_specialities(client):
+def test_05_list_specialities(client):
     rv = client.get("/members/allSpecialities", follow_redirects=True)
     assert "title" in str(rv.data)
 
