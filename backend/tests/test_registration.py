@@ -1,13 +1,15 @@
 from __future__ import absolute_import
 
 from flask import json
+from flask.helpers import url_for
+import pytest
 
 # from registration.models import Doctor, Speciality
 # from backend.tests.conftest import delete_tables
 
-
-def test_01_add_doctor(client, doctor):
-
+@pytest.mark.run(order=5)
+def test_add_practitioner(client, doctor):
+    url = url_for("profiles.create_practitioner_profile")
     rv = client.post(
         "/members/createProfile",
         data=json.dumps(doctor),
@@ -17,8 +19,8 @@ def test_01_add_doctor(client, doctor):
 
     assert "successful" in str(rv.data)
 
-
-def test_02_add_beneficiary(client, beneficiary):
+@pytest.mark.run(order=10)
+def test_add_beneficiary(client, beneficiary):
     rv = client.post(
         "/members/createProfile",
         data=json.dumps(beneficiary),
@@ -29,13 +31,16 @@ def test_02_add_beneficiary(client, beneficiary):
     assert None != id
 
 
-def test_03_list_licences(client, license):
-    rv = client.get("/members/doctor/1/licences", follow_redirects=True)
+@pytest.mark.run(order=6)
+def test_list_licences_by_practitioner(client, license):
+    url = url_for("profiles.licences", doctorid=1)
+    rv = client.get(url, follow_redirects=True)
 
     assert license[0]["code"] in str(rv.data)
 
 
-def test_04_find_doctors(client):
+@pytest.mark.run(order=7)
+def test_find_doctors(client):
     criteria = [
         "speciality",
         "speciality-localtion",
@@ -45,9 +50,10 @@ def test_04_find_doctors(client):
     ]
 
     for c in criteria:
+        url = url_for("profiles.find_doctors", criteria=c)
         if c == "speciality":
             rv = client.get(
-                f"/members/doctors?criteria={c}",
+                url, # f"/members/doctors?",
                 data=json.dumps({"speciality": "Nutritionist"}),
                 content_type="application/json",
                 follow_redirects=True,
@@ -57,7 +63,7 @@ def test_04_find_doctors(client):
 
         if c == "speciality-location":
             rv = client.get(
-                f"/members/doctors?criteria={c}",
+                url, # f"/members/doctors?criteria={c}",
                 data=json.dumps({"speciality": "Nutritionist", "location": "Lisbon"}),
                 content_type="application/json",
                 follow_redirects=True,
@@ -66,7 +72,7 @@ def test_04_find_doctors(client):
 
         if c == "mode":
             rv = client.get(
-                f"/members/doctors?criteria={c}",
+                url, # f"/members/doctors?criteria={c}",
                 data=json.dumps({"mode": "video"}),
                 content_type="application/json",
                 follow_redirects=True,
@@ -75,7 +81,7 @@ def test_04_find_doctors(client):
 
         if c == "speciality-location-mode":
             rv = client.get(
-                f"/members/doctors?criteria={c}",
+                url, # f"/members/doctors?criteria={c}",
                 data=json.dumps(
                     {
                         "speciality": "Nutritionist",
@@ -89,13 +95,21 @@ def test_04_find_doctors(client):
             assert "speciality" in str(rv.data)
 
         if c == "all":
-            rv = client.get(f"/members/doctors?criteria={c}", follow_redirects=True)
+            rv = client.get(
+                    url,# f"/members/doctors?criteria={c}", 
+                    follow_redirects=True)
             assert "speciality" in str(rv.data)
 
-
-def test_05_list_specialities(client):
-    rv = client.get("/members/allSpecialities", follow_redirects=True)
+@pytest.mark.run(order=8)
+def test_list_specialities(client):
+    url = url_for("profiles.specialities")
+    rv = client.get(
+        url, # "/members/allSpecialities", 
+        follow_redirects=True)
     assert "title" in str(rv.data)
 
-    rv = client.get("/members/findSpeciality?title=Nutritionist", follow_redirects=True)
+    url = url_for("profiles.specialities", title="Nutritionist")
+    rv = client.get(
+            url, # "/members/findSpeciality?title=Nutritionist", 
+                follow_redirects=True)
     assert "title" in str(rv.data)

@@ -3,8 +3,9 @@ from __future__ import absolute_import
 from datetime import datetime
 import uuid
 
-from flask import Blueprint, json, request, jsonify
-from flask.helpers import make_response, url_for
+from flask import Blueprint, json, request, jsonify, current_app
+from flask.helpers import flash, make_response, url_for
+import jwt
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import redirect
 
@@ -37,14 +38,24 @@ def subscribers():
 
 @profiles.route("/practitioners", methods=["GET"])
 @profiles.route("/practitioners/findByCriteria?criteria=<string:criteria>", methods=["GET"])
-def find_doctors():
+def find_doctors(criteria=None):
     request_time = datetime.now()
     try:
 
         data = request.get_json()
-        criteria = request.args["criteria"]
-
-        print(criteria, " : ", data)
+        if criteria is None:
+            criteria = request.args.get("criteria")
+        
+        # validate criteria
+        if criteria not in [
+                    "speciality-location",
+                    "speciality",
+                    "speciality-location-mode",
+                    "mode",
+                    "all"
+                    ]:
+            criteria = 'all'
+            flash("Use speciality or location to search for practitioners", category='info')       
         # find by speciality and location together
         if criteria == "speciality-location":
             doctors = Doctor().find_all(
@@ -86,7 +97,7 @@ def find_doctors():
     }
     # print(doctors)
     for doctor in doctors:
-        address = list(
+        addresses = list(
             dict(
                 street_name=addr.street_name,
                 door_number=addr.door_num,
@@ -103,13 +114,14 @@ def find_doctors():
         # print(specialities)
         licenses = list(l.code for l in doctor.licenses[0:])
         # print(licenses)
+        public_id = jwt.encode({'public_key': doctor.nif }, current_app.secret_key )
         template["summary"].append(
             {
                 "fullname": doctor.full_name,
-                "identity": doctor.nif,
+                "publicid": public_id,
                 "speciality": specialities,
-                "licenses": licenses,
-                "address": address,
+                "licences": licences,
+                "addresses": addresses,
                 "mode": doctor.mode,
             }
         )
@@ -153,14 +165,6 @@ def create_profile(current_user: Subscriber = None, data: dict=None):
         )
 
     return make_response({"Error":"Too many errors", "message":"Check your inputs"}), 403
-
-
-def handle_subscriptions(role, data):
-    if role == "doctor":
-        return add_practitioner(data=data)
-    if role == "beneficiary":
-        return add_beneficiary(data=data)
-    return None
 
 
 @token_required
@@ -226,11 +230,11 @@ def add_beneficiary(current_user: Subscriber = None, data=dict()):
     return beneficiary
 
 
-@profiles.route("/beneficiaries", methods=["GET"])
+@profiles.route("/beneficiaries?criteria=<string:criteria>&cityname=<string:city_name>", methods=["GET"])
 @token_required
-def find_beneficiaries(current_user: Subscriber = None, *args, **kwargs):
+def find_beneficiaries(current_user: Subscriber = None, criteria='city', city_name='Lisbon'):
     request_time = datetime.now()
-    beneficiaries = Beneficiary().find_all(criterion="city", name="Lisbon")
+    beneficiaries = Beneficiary().find_all(criterion=criteria, name=city_name)
     # if beneficiaries is None or beneficiaries == []:
     #     print(beneficiaries)
     #     return None
@@ -288,7 +292,7 @@ def add_member_address(current_user: Subscriber = None, data=dict()):
     return address_id
 
 
-@profiles.route("/licenses/<int:doctorid>", methods=["GET"])
+@profiles.route("/licenses/<int:doctorid>")
 @profiles.route("/doctor/<int:doctorid>/licences")
 @token_required
 def licences(current_user: Subscriber = None, doctorid=None):
@@ -369,7 +373,7 @@ def handle_speciality_update(current_user: Subscriber=None, content: dict = None
 
 
 @profiles.route("/practitioner/createProfile", methods=["POST", "PUT"])
-# @token_required
+@token_required
 def create_practitioner_profile(current_user: Subscriber=None):
 
     profile : dict = request.get_json()
@@ -419,6 +423,13 @@ def create_beneficiary_profile(current_user: Subscriber=None):
     
     return create_profile(data=profile)    
 
+
+def handle_subscriptions(role, data):
+    if role == "doctor":
+        return add_practitioner(data=data)
+    if role == "beneficiary":
+        return add_beneficiary(data=data)
+    return None
 
 def add_speciality(practitioner: Doctor, specialities: list):
     for spec in specialities:
