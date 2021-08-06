@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from authentication.models import Subscriber
 
 from flask import Blueprint, request, jsonify, json
 from flask.globals import current_app, g
@@ -9,7 +10,7 @@ from werkzeug.utils import redirect
 from backend.booking.models import Appointment
 from backend.registration.models import Beneficiary
 
-bookings = Blueprint("booking", __name__, url_prefix="/booking")
+bookings = Blueprint("booking", __name__, url_prefix="/v1/booking")
 
 
 @bookings.route("/")
@@ -45,8 +46,8 @@ def booking():
 
 
 @bookings.route("/makeAppointment", methods=["POST", "GET"])
-def make_appointment():
-    data = {}
+def make_appointment(data=None):
+    
 
     # beneficiary = data['beneficiary']
     # check if beneficiary is already registered
@@ -54,16 +55,17 @@ def make_appointment():
     beneficiary = Beneficiary.query.all()
 
     if beneficiary:
-        # register appointment
-        # appointment = Appointment(
-        #     date=data.date, slot=data.time,
-        #     doctorName=data.doctor, doctSpeciality=data.speciality,
-        #     beneficiaryName=data.myName, beneficiaryPhone=data.beneficiaryPhone,
-        #     beneficiaryNIF=data.beneficiaryNIF )
-        # dbase.session_add(Appointment)
+    #     # register appointment
+    #     appointment = Appointment(
+    #         date=data.date, slot=data.time,
+    #         doctorName=data.doctor, doctSpeciality=data.speciality,
+    #         beneficiaryName=data.myName, beneficiaryPhone=data.beneficiaryPhone,
+    #         beneficiaryNIF=data.beneficiaryNIF )
+    
         return jsonify({"query": beneficiary[0].fullname})
-    return redirect(url_for("members.subscribe", _method="GET", data="TEST"))
+    return redirect(url_for("members.subscribe", _method="GET", data="TEST")
 
 
-# if __name__ == '__main__':
-#     app.run('0.0.0.0', port=5001,debug=True)
+
+
+

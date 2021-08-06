@@ -30,7 +30,9 @@ migrations:
 	flask db upgrade
 
 test:
-	pytest --verbose
+	# Running test with converage
+	coverage run -m py.test -vv &&\
+    coverage report -m --fail-under=70 &&\
 	rm -f ./hadolint
 
 

@@ -1,4 +1,9 @@
 from __future__ import absolute_import
+import json
+# import subprocess as subpro
+import os
+from flask.helpers import url_for
+# from flask.wrappers import Response
 
 
 
@@ -15,6 +20,7 @@ from backend import settings
 @pytest.fixture(scope='session')
 def app():
     app = make_app(settings.TestingConfig)
+    # app.config["TESTING"] = True
     yield app
     session.remove()
 
@@ -22,7 +28,8 @@ def app():
 def runner(app):
     return app.test_cli_runner()
 
-@pytest.fixture
+# @pytest.fixture
+@pytest.fixture(scope='session')
 def client(app):
     with app.test_request_context():
                 
@@ -39,9 +46,9 @@ def doctor(speciality, address, license):
         taxid="XSDSDSMM4x",
         phone="351920400949",
         photo="/media/profiles/doctors/foto.png",
-        speciality=speciality,
-        address=address,
-        license=license,
+        specialities=speciality,
+        addresses=address,
+        licences=license,
         mode="video",
         birthdate="2000-02-01",
     )
@@ -50,14 +57,14 @@ def doctor(speciality, address, license):
 
 @pytest.fixture
 def address():
-    return dict(
+    return [dict(
         streetname="Av. Carolina Michaelis",
         doornumber="49 RC-ESQ",
         zipcode="2795-050",
         state="Lisbon",
         city="Lisbon",
         country="Portugal",
-    )
+    )]
 
 
 @pytest.fixture
@@ -79,16 +86,16 @@ def license():
     license = [
         dict(
             code="XMSNDUASLKDASK",
-            issue_date="20/02/2018",
-            valid_date="20/02/23",
+            issuedate="20/02/2018",
+            enddate="20/02/23",
             issuingorg="Ordem dos Medicos de Portugal",
             issuingcountry="Portugal",
             certificate="/media/profiles/licenses/certificate.pdf",
         ),
         dict(
             code="XMSNDCDHSJASK",
-            issue_date="20/02/2020",
-            valid_date="20/02/25",
+            issuedate="20/02/2020",
+            enddate="20/02/25",
             issuingorg="Ordem dos Medicos de Portugal",
             issuingcountry="Portugal",
             certificate="/media/profiles/licenses/certificate.pdf",
@@ -108,7 +115,7 @@ def beneficiary(address):
         photo="/media/profiles/beneficiaries/foto.jpg",
         phone="351 920 450 673",
         taxid="CSDXDCNSAMMX",
-        address=address,
+        addresses=address,
     )
 
     yield beneficiary
@@ -140,10 +147,10 @@ def delete_tables(doctor=None, beneficiary=None):
 
 # Scheduling configurations
 @pytest.fixture
-def schedules():
+def schedules(processor):
     schedules = [
         dict(
-            doctorId="XSDSDSMM4x",
+            # doctorId=processor.get_publicid(),
             year=2021,
             month="aug",
             weeks={
@@ -163,7 +170,7 @@ def schedules():
 
 @pytest.fixture
 def subscriber():
-    subscriber = dict(
+    subscriber = [ dict(
         username="+351930400399",
         password="sacadcadffadadadadas",
         role="doctor",
@@ -172,5 +179,70 @@ def subscriber():
         fullname="John Doe",
         country="Portugal",
         gender="Male",
-    )
+    ),
+    dict(
+        username="+351930400391",
+        password="sacadcadffadadadadas",
+        role="beneficiary",
+        dob="2012/03/26",
+        phone="+351930400391",
+        fullname="Charley de Melo",
+        country="Portugal",
+        gender="Female",
+    )]
     yield subscriber
+
+
+
+class AuthActions(object):
+    def __init__(self, client) -> None:
+        self.client = client 
+
+    def create(self, user):
+        url = url_for("auth.create_credencials")
+        return self.client.post(url, data=json.dumps(user), \
+            content_type="application/josn", \
+                follow_redirects=True
+        )
+
+    def authenticate(self, user):
+        url = url_for("auth.authenticate")
+        return self.client.post(url, data=json.dumps(user), \
+            content_type="application/josn", \
+                follow_redirects=True
+        )
+
+    def deauthenticate(self):
+        url = url_for("auth.deauthenticate")
+        return self.client.get(url, 
+                follow_redirects=True)
+
+
+@pytest.fixture
+def credentials(client):
+    actions = AuthActions(client)
+    yield actions
+
+
+
+
+class ResponseProcessor(object):
+    
+    
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.public_id = ''
+    
+    # @app.after_request
+    def set_publicid(self, id):
+        os.environ['PUBLIC_ID'] = id
+    
+    def get_publicid(self):
+        return os.getenv("PUBLIC_ID", '')
+        # return self.public_id
+        
+@pytest.fixture
+def processor():
+    processor = ResponseProcessor()
+    yield processor

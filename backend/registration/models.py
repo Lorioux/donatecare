@@ -18,6 +18,7 @@ from backend import dbase, initializer
 session = dbase.session
 
 
+
 class DoctorSpeciality(dbase.Model):
     __tablename__ = "doctor_speciality"
     __table_args__ = {"extend_existing": True}
@@ -73,17 +74,19 @@ class Beneficiary(dbase.Model):
 
     id = Column(Integer, primary_key=True)
     full_name = Column(String(55))
-    birth_date = Column(Integer)
+    birth_date = Column(Text)
     gender = Column(String(6))
-    photo = Column(String(128), default="/media/profiles/beneficiaries/foto.jpg")
-    phone = Column(String(55))
-    nif = Column(String(55), unique=True)  # unique=True
+    photo = Column(Text, default="/media/profiles/beneficiaries/foto.jpg")
+    phone = Column(Text)
+    nif = Column(Text, unique=True)  # unique=True
 
     addresses = relationship(
         "Address",
         secondary="beneficiary_morada",
         backref=backref("beneficiaries", lazy="dynamic"),
     )
+
+    doctor_id = Column("doctor_id", ForeignKey("doctor.id"))
 
     def __init__(self, *args, **kwargs):
         self.full_name = initializer("fullname", kwargs)
@@ -92,38 +95,39 @@ class Beneficiary(dbase.Model):
         self.photo = initializer("photo", kwargs)
         self.phone = initializer("phone", kwargs)
         self.nif = initializer("taxid", kwargs)
-        self.address = initializer("address", kwargs)
+        # self.address = initializer("addresses", kwargs)
 
 
-    @classmethod
-    def add_address(self, address):
-        # print(address)
-        return Address(
-            street_name=address["street_name"],
-            door_num=address["doornumber"],
-            zipcode=address["zipcode"],
-            city=address["city"],
-            state=address["state"],
-            country=address["country"],
-        )
+    # @classmethod
+    # def add_address(self, address):
+    #     # print(address)
+    #     return Address(
+    #         street_name=address["street_name"],
+    #         door_num=address["doornumber"],
+    #         zipcode=address["zipcode"],
+    #         city=address["city"],
+    #         state=address["state"],
+    #         country=address["country"],
+    #     )
 
     
     def save(self):
         session.add(self)
         try:
-            new_address = self.add_address(address=self.address)
-            if new_address.save() is None:
-                print("Test 1")
-                return None
-            else:
-                print("Test 2")
-                self.addresses.append(new_address)
-                session.commit()
+            # new_address = self.add_address(address=self.addresses)
+            # if new_address.save() is None:
+                
+            #     return None
+            # else:
+                
+            #     self.addresses.append(new_address)
+            session.commit()
             return self
-        except RuntimeError as e:
-            print(e)
+        except RuntimeError as error:
+            logging.exception(error)
             return None
 
+    
     def find_all(self, criterion: any, *args, **kwargs):
         # criterion => speciality | location | mode | [speciality, location]
         # kwargs => id | location | city_name | beneficiary_name | all
@@ -139,6 +143,7 @@ class Beneficiary(dbase.Model):
         if criterion == "all":
             return self.query.all()
 
+    
     def collect_by(self, additional_criterion: any):
         return (
             self.query.from_self()
@@ -153,6 +158,7 @@ class Beneficiary(dbase.Model):
             )
         )
 
+    
     def validate(self, full_name, phone, nif):
         valid = self.query.filter(
             and_(
@@ -164,6 +170,7 @@ class Beneficiary(dbase.Model):
             return valid
         return None
 
+    
     def delete(self):
         session.delete(self)
         session.commit()
@@ -180,28 +187,34 @@ class Doctor(dbase.Model):
     id = Column(Integer, primary_key=True)
     full_name = Column(String(55))  # unique=True
     gender = Column(String(6))
-    phone = Column(String(12), unique=True)  # unique=True
-    nif = Column(String(55), unique=True)  # unique=True
-    photo = Column(String(128), default="/media/profiles/doctors/foto.jpg")
+    phone = Column(Text, unique=True)  # unique=True
+    nif = Column(Text, unique=True)  # unique=True
+    photo = Column(Text, default="/media/profiles/doctors/foto.jpg")
     mode = Column(String(55), default="present")
     birth_date = Column(String(55))
+    
     specialities = relationship(
         "Speciality",
         backref=backref("doctors", lazy="dynamic"),
         secondary="doctor_speciality",
         cascade="delete",
     )
+  
     licences = relationship(
         "License",
         backref=backref("doctors", lazy="joined"),
         cascade="delete, delete-orphan",
     )
+    
     addresses = relationship(
         "Address",
         backref=backref("doctors", lazy="dynamic"),
         secondary="doctor_morada",
         cascade="delete",
     )
+
+    # added when practitioner start create a patient's profile
+    beneficiaries = relationship("Beneficiary", backref="doctors", lazy="select")
 
     def __init__(self, **kwargs):
         self.full_name = initializer("fullname", kwargs)
@@ -246,90 +259,128 @@ class Doctor(dbase.Model):
     def find_all(self, criteria: any, *args, **kwargs):
         # criterion => speciality | location | mode | [speciality, location]
         # args => speciality_name | location | doctor_name | all
-        if criteria == "speciality":
+        if criteria == "speciality-only":
             speciality = Speciality().getby_title(title=kwargs["title"])
-            return speciality.doctors
-        if criteria == "location":
-            address = Address().find_by(criterion=kwargs["city"])
-            return address.doctors
-        if criteria == "mode":
-            return self.query.filter(Doctor.mode == kwargs["mode"])
+            if speciality:
+                return speciality.doctors
+            return None
+        if criteria == "location-only":
+            address = Address().getby_city(name=kwargs["city"], entity=self)
+            if address:
+                return address.doctors
+            return None
+        if criteria == "mode-only":
+            doctors =  self.query.filter(Doctor.mode == kwargs["mode"])
+            if doctors:
+                return doctors
+            return None
         if criteria.__contains__("speciality-location"):
             doctors = self.query.filter(
                 and_(Doctor.addresses.city == kwargs["city"]),
                 and_(Doctor.specialities.title == kwargs["title"]),
             ).all()
-            return doctors
+            if doctors:
+                return doctors
+            return None
+
         if criteria == "speciality-location-mode":
             doctors = self.query.filter(
                 and_(Doctor.addresses.city == kwargs["city"]),
                 and_(Doctor.specialities.title == kwargs["title"]),
                 and_(Doctor.mode.contains(kwargs["mode"])),
             ).all()
-            return doctors
-        if criteria == "all":
-            return self.query
-
-    @classmethod
-    def link_speciality(self, specialities: any):
-        
-        for speciality in specialities:
-
-            check = Speciality(
-                title=speciality["title"], description=speciality["description"]
-            ).save()
-            try:
-                if check:
-                    return check.doctors.append(self)
-
-                else:
-                    new_speciality = Speciality(
-                        title=speciality["title"], description=speciality["description"]
-                    ).save()
-                    # new_speciality.save()
-                    return new_speciality.doctors.append(self)
-
-            except RuntimeError as error:
-
-                return None
-
-    @classmethod
-    def link_addresses(self, address: any):
-        
-        member_address = Address(
-            street_name=address["streetname"],
-            door_number=address["doornumber"],
-            zipcode=address["zipcode"],
-            city=address["city"],
-            state=address["state"],
-            country=address["country"],
-        )
-        try:
-            if member_address.save() is not None:
-                return member_address
-            else:
-                return None
-        except RuntimeError as e:
-            print(e)
+            if doctors:
+                return doctors
             return None
+            
+        if criteria == "none":
+            return self.query
+    
+    #
+        # @classmethod
+        # def link_speciality(self, specialities: any):
+            
+        #     for speciality in specialities:
 
-    @classmethod
-    def link_licenses(self, licenses: dict):
-        results = []
-        session.bulk_insert_mappings(License, licenses)
-        session.commit()
+        #         check = Speciality(
+        #             title=speciality["title"], description=speciality["description"]
+        #         ).save()
+        #         try:
+        #             if check:
+        #                 return check.doctors.append(self)
 
-        for license in licenses:
-            check_create = License().findby_code(license["code"])
+        #             else:
+        #                 new_speciality = Speciality(
+        #                     title=speciality["title"], description=speciality["description"]
+        #                 ).save()
+        #                 # new_speciality.save()
+        #                 return new_speciality.doctors.append(self)
 
-            try:
-                if check_create is not None:
-                    # check_create.doctors.append(self)
-                    results.append(check_create)
-            except RuntimeError as e:
-                print(e)
-                return None
-        return results
+        #         except RuntimeError as error:
+
+        #             return None
+
+        # @classmethod
+        # def link_addresses(self, address: any):
+            
+        #     member_address = Address(
+        #         street_name=address["streetname"],
+        #         door_number=address["doornumber"],
+        #         zipcode=address["zipcode"],
+        #         city=address["city"],
+        #         state=address["state"],
+        #         country=address["country"],
+        #     )
+        #     try:
+        #         if member_address.save() is not None:
+        #             return member_address
+        #         else:
+        #             return None
+        #     except RuntimeError as e:
+        #         print(e)
+        #         return None
+
+        # @classmethod
+        # def link_licenses(self, licenses: dict):
+        #     results = []
+        #     session.bulk_insert_mappings(License, licenses)
+        #     session.commit()
+
+        #     for license in licenses:
+        #         check_create = License().findby_code(license["code"])
+
+        #         try:
+        #             if check_create is not None:
+        #                 # check_create.doctors.append(self)
+        #                 results.append(check_create)
+        #         except RuntimeError as e:
+        #             print(e)
+        #             return None
+        #     return results
+
+
+    def retrieve_profile(self, identity):
+        return self.query.filter(Doctor.nif.like(identity)).one_or_none()
+
+
+    def associate_beneficiary(self, beneficiary: Beneficiary):
+        session.add(self)
+        try:
+            self.beneficiaries.append(beneficiary)
+            session.commit()
+            return True
+        except RuntimeError as error:
+            return False
+
+    def disassociate_beneficiary(self, beneficiary: Beneficiary):
+        session.add(self)
+        try:
+            
+            self.beneficiaries.remove(beneficiary)
+            return True
+        except RuntimeError as error:
+            logging.exception(error, stack_info=True)
+            return False
 
 
 class Speciality(dbase.Model):
@@ -383,7 +434,8 @@ class Speciality(dbase.Model):
         return self.query.get(spec_id).all()
 
     def get_all(self):
-        return self.query.all()
+        specialities = self.query 
+        return specialities.count(), specialities.all()
 
 
 class License(dbase.Model):
@@ -393,12 +445,12 @@ class License(dbase.Model):
 
     id = Column(Integer, primary_key=True)
     code = Column(String(128), unique=True, nullable=False)  # Encrypted
-    issue_date = Column(String(8))
-    end_date = Column(String(8))
-    issuingorg = Column(String(128), nullable=False, default="Office LLC")
+    issue_date = Column(String(55))
+    end_date = Column(String(55))
+    issuingorg = Column(Text, nullable=False, default="Office LLC")
     issuingcountry = Column(Integer, ForeignKey("country.id"), nullable=False)
     certificate = Column(
-        String(128), default="/media/profiles/licenses/certificate.pdf", nullable=False
+        Text, default="/media/profiles/licenses/certificate.pdf", nullable=False
     )  # Image path Encrypted
     doctor_id = Column(Integer, ForeignKey("doctor.id", ondelete="CASCADE"))
 
@@ -407,13 +459,20 @@ class License(dbase.Model):
         self.issue_date = initializer("issuedate", kwargs)
         self.end_date = initializer("enddate", kwargs)
         self.issuingorg = initializer("issuingorg", kwargs)
-        self.issuingcountry = initializer("issuingcountry", kwargs)
+        self.country = initializer("issuingcountry", kwargs)
         self.certificate = initializer("certificate", kwargs)
         self.doctor_id = initializer("doctor_id", kwargs)
 
     def save(self):
         license = self.findby_code(self.code)
         if license is None:
+            country = Country(name=self.country).find_by(criterion="name")
+            if country is None:
+                country_id = country.save()
+                if country_id:
+                    self.issuingcountry = country_id
+            else:
+                self.issuingcountry = country.id
             session.add(self)
             try:
                 session.commit()
@@ -454,12 +513,15 @@ class Country(dbase.Model):
         self.country_code = initializer("ccode", kwargs)
 
     def save(self):
+        country = self.query.filter(Country.name.ilike(self.name)).one_or_none()
+        if country:
+            return country.id
         session.add(self)
         try:
             session.commit()
             return self.id
-        except RuntimeError as e:
-            print("Error Country: ", e.args)
+        except RuntimeError as error:
+            logging.exception(error)
             session.rollback()
             return None
 
@@ -474,12 +536,16 @@ class Country(dbase.Model):
     def find_by(self, criterion: any):
         if criterion == "id":
             country = Country.query.filter(Country.id == self.id).first()
-        else:
-            country = Country.query.filter(Country.name.like(self.name)).first()
+        if criterion == "code":
+            country = Country.query.filter(Country.country_code.like(self.country_code)).first()
 
+        if criterion == "name":
+            country = Country.query.filter(Country.name.like(self.name)).first()
+        
         if country is None:
             self.save()
             return self
+            
 
         return country
 
@@ -500,7 +566,7 @@ class Address(dbase.Model):
     street_name = Column(String(128))
     door_num = Column(String(55))
     state = Column(String(55))
-    zipcode = Column(String(9))
+    zipcode = Column(String(55))
     city = Column(String(55))
     country_id = Column(Integer, ForeignKey("country.id"))
     country = relationship(Country, foreign_keys=[country_id])
@@ -513,7 +579,12 @@ class Address(dbase.Model):
         self.city = initializer("city", kwargs)
         self.country_ = initializer("country", kwargs)
 
+    
     def save(self):
+        check = self.getby_number_zipcode_street()
+        if check:
+            return check
+
         session.add(self)
         try:
             country = Country(name=self.country_).bind_address(address=self)
@@ -521,8 +592,10 @@ class Address(dbase.Model):
                 self.country = country
             session.commit()
             return self
-        except RuntimeError as e:
-            logging.exception(e, stack_info=True)
+        except RuntimeError as error:
+            # logging.exception(error, stack_info=True)
+            print(error)
+
             return None
     
 
@@ -534,12 +607,21 @@ class Address(dbase.Model):
                 if isinstance(resident, Doctor):
                     address.doctors.append(resident)
                 if isinstance(resident, Beneficiary):
-                    address.beneficiary.append(resident)
+                    address.beneficiaries.append(resident)
                 session.commit()
                 return address
             except:
                 return None
 
+
+    def getby_number_zipcode_street(self):
+        return self.query.filter(
+            and_(
+                Address.door_num.ilike(self.door_num),
+                Address.zipcode.ilike(self.zipcode),
+                Address.street_name.ilike(self.street_name)
+            )
+        ).one_or_none()
 
     def getby_city(self, name, entity: None):
         addresses = self.query.filter(Address.city.like(name)).all()
@@ -548,6 +630,7 @@ class Address(dbase.Model):
         else:
             return self.fetch_by(entity, addresses)
 
+    
     def getby_zipcode(self, code, entity=None):
         addresses = self.query.filter(Address.zipcode.like(code))
         if entity is None:
@@ -555,8 +638,9 @@ class Address(dbase.Model):
         else:
             return self.fetch_by(entity, addresses)
 
+    
     def fetch_by(self, entity, addresses):
-        if entity == "doctor":
+        if entity.role == "doctor":
             addresses = (
                 addresses.from_self()
                 .join(addresses.doctors)
@@ -570,7 +654,7 @@ class Address(dbase.Model):
             )
             return addresses
 
-        if entity == "beneficiary":
+        if entity.role == "beneficiary":
             addresses = (
                 addresses.from_self()
                 .join(addresses.beneficiaries)
@@ -584,6 +668,7 @@ class Address(dbase.Model):
             )
             return addresses
 
+    
     def delete(self):
         session.delete(self)
         try:

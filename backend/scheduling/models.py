@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from logging import Logger
-from typing import Text
 
 
 from sqlalchemy import Column, String, Integer, Text
@@ -22,11 +21,13 @@ class Schedule(dbase.Model):
 
     id = Column(Integer, primary_key=True)
     weeks = Column(PickleType, nullable=False)
-    month = Column(String(3), nullable=False)
+    month = Column(String(12), nullable=False)
     year = Column(Integer, nullable=False)
-    doctor_nif = Column(String(128), nullable=False)
+    doctor_nif = Column(Text, nullable=False)
     # indexes = ForeignKeyConstraint(["month", "doctor_nif", "year"], \
     #         ["schedule.month", "schedule.doctor_nif", "schedule.year"])
+    
+
     UniqueConstraint("month", "doctor_nif", "year", name="unique_schedule")
 
     def __init__(self, *args, **kwargs):

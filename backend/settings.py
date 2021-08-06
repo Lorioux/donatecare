@@ -2,51 +2,60 @@ import os
 import sys
 sys.path.append('..')
 
-from dotenv import load_dotenv
+from dotenv import get_key, set_key
 
-# basedir = os.path.abspath(os.path.dirname(__file__))
-
-PSQL_CONNECT_TO = os.environ.get('PSQL_CONNECT_TOUT', 10)
-PSQL_SERVER_PO = os.environ.get('POSL_SERVER_PORT', 5432)
-
-BOOKING = {
-    'PSQL_USERNAME': os.environ.get('PSQL_USERNAME', 'postgres'),
-    'PSQL_PASSWORD': os.environ.get('PSQL_PASSWORD', 'password'),
-    'PSQL_SVR_PORT': PSQL_SERVER_PO,
-    'PSQL_HOSTNAME': os.environ.get('PSQL_HOSTNAME', 'localhost'),
-    'PSQL_DATABASE': os.environ.get('PSQL_DB_BOOKING', 'donatecare'),
-}   
-
-PROFILES = BOOKING.copy()
-PROFILES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_PROFILES', 'donatecare')
-
-SCHEDULES = BOOKING.copy()
-SCHEDULES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
-
-SUBSCRIBERS = BOOKING.copy() 
-SUBSCRIBERS['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+__here__ = os.path.abspath(os.path.dirname(__file__))
 
 class VARIABLES(object):
-    pass
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.PSQL_CONNECT_TO = os.environ.get('PSQL_CONNECT_TOUT', 10)
+        self.PSQL_SERVER_PO = os.environ.get('POSL_SERVER_PORT', 5432)
+
+        self.BOOKING = {
+                'PSQL_USERNAME': os.environ.get('PSQL_USERNAME', 'postgres'),
+                'PSQL_PASSWORD': os.environ.get('PSQL_PASSWORD', 'password'),
+                'PSQL_SVR_PORT': self.PSQL_SERVER_PO,
+                'PSQL_HOSTNAME': os.environ.get('PSQL_HOSTNAME', 'localhost'),
+                'PSQL_DATABASE': os.environ.get('PSQL_DB_BOOKING', 'donatecare'),
+                'PSQL_CON_TOUT': self.PSQL_CONNECT_TO
+            }
+
+        self.PROFILES = self.BOOKING.copy()
+        self.PROFILES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_PROFILES', 'donatecare')
+
+        self.SCHEDULES = self.BOOKING.copy()
+        self.SCHEDULES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+
+        self.SUBSCRIBERS = self.BOOKING.copy() 
+        self.SUBSCRIBERS['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SUBSCRIBERS', 'donatecare')
     
 def setup_environ():
-    load_dotenv('./.env', )
-    if os.environ.get('SECRET_KEY', '') == '':
+    environ = get_key('./.env', 'FLASK_ENV').__eq__('production')
+    secret = get_key('./.env', 'SECRET_KEY').__eq__('')
+    if secret:
         SECRET_KEY = os.urandom(128).hex('-')
         os.environ['SECRET_KEY'] = SECRET_KEY
-        print("SETTING_ENV")
-    pass
+        
+        if environ:
+            # if environ is in production
+            set_key('./.env','SECRET_KEY', SECRET_KEY)
+            
 
-setup_environ()
+    # print(os.environ.get('FLASK_PORT'))
+    pass
 
 class Config:
     """
     Base configuration class. Contains default configuration settings +
      configuration settings applicable to all environments.
     """
+    setup_environ()
+    VARIABLES = VARIABLES()
 
     # Default settings
-    FLASK_ENV = "development"
+    ENV = "development"
     DEBUG = False
     TESTING = False
     WTF_CSRF_ENABLED = True
@@ -65,26 +74,19 @@ class Config:
     
     JSONIFY_PRETTYPRINT_REGULAR = True
 
-    PSQL_CONNECT_TO = os.environ.get('PSQL_CONNECT_TOUT', 10)
-    PSQL_SERVER_PO = os.environ.get('POSL_SERVER_PORT', 5432)
+    # PSQL_CONNECT_TO = os.environ.get('PSQL_CONNECT_TOUT', 10)
+    # PSQL_SERVER_PO = os.environ.get('POSL_SERVER_PORT', 5432)
     
-    BOOKING = {
-        'PSQL_USERNAME': os.environ.get('PSQL_USERNAME', 'postgres'),
-        'PSQL_PASSWORD': os.environ.get('PSQL_PASSWORD', 'password'),
-        'PSQL_SVR_PORT': PSQL_SERVER_PO,
-        'PSQL_HOSTNAME': os.environ.get('PSQL_HOSTNAME', 'localhost'),
-        'PSQL_DATABASE': os.environ.get('PSQL_DB_BOOKING', 'donatecare'),
-        'PSQL_CON_TOUT': PSQL_CONNECT_TO
-    }   
+    BOOKING = VARIABLES.BOOKING
 
-    PROFILES = BOOKING.copy()
-    PROFILES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_PROFILES', 'donatecare')
+    PROFILES = VARIABLES.PROFILES
+    # PROFILES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_PROFILES', 'donatecare')
 
-    SCHEDULES = BOOKING.copy()
-    SCHEDULES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+    SCHEDULES = VARIABLES.SCHEDULES
+    # SCHEDULES['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
 
-    SUBSCRIBERS = BOOKING.copy() 
-    SUBSCRIBERS['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SCHEDULES', 'donatecare')
+    SUBSCRIBERS = VARIABLES.SUBSCRIBERS 
+    # SUBSCRIBERS['PSQL_DATABASE'] = os.environ.get('PSQL_DB_SUBSCRIBERS', 'donatecare')
 
     PSQL_CONNECT_URL = "postgres://%(PSQL_USERNAME)s:%(PSQL_PASSWORD)s@%(PSQL_HOSTNAME)s:%(PSQL_SVR_PORT)s/%(PSQL_DATABASE)s?connect_timeout=%(PSQL_CON_TOUT)s&application_name=DONATECARE"
     
@@ -128,17 +130,21 @@ class TestingConfig(Config):
 
     JSONIFY_PRETTYPRINT_REGULAR = True
 
-    SQLALCHEMY_BINDS = {
-        "booking": "sqlite:///databases/booking.db",
-        "profiles": "sqlite:///databases/profiles.db",
-        "schedules": "sqlite:///databases/schedules.db",
-        "subscribers": "sqlite:///databases/subscribers.db",
-    }
+    # SQLALCHEMY_BINDS = {
+    #     "booking": "sqlite:///databases/booking.db",
+    #     "profiles": "sqlite:///databases/profiles.db",
+    #     "schedules": "sqlite:///databases/schedules.db",
+    #     "subscribers": "sqlite:///databases/subscribers.db",
+    # }
     # SERVER_NAME = "backend.localhost"
 
 
 class ProductionConfig(Config):
-    
     ENV = "production"
     DEBUG = False
+    WTF_CSRF_ENABLED = True
+    MAIL_SUPPRESS_SEND = True
+
+    SESSION_REFRESH_EACH_REQUEST = True
+
     

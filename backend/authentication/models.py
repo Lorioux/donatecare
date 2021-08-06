@@ -1,16 +1,17 @@
 from __future__ import absolute_import
-from logging import Logger
+import logging
 
+import pickle
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.elements import and_
-from sqlalchemy.sql.expression import or_
 
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import String, Integer
+from sqlalchemy.sql.sqltypes import PickleType, String, Integer, Text
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
 from backend import dbase, initializer
+from backend import Doctor
 
 
 session = dbase.session
@@ -23,17 +24,15 @@ class Subscriber(dbase.Model):
 
     id = Column(Integer, primary_key=True)
     user_name = Column(String(55), unique=True)
-    password = Column(String(128))
+    password = Column(Text)
     role = Column(String(55))
     public_id = Column(String(128), nullable=False, unique=True)
-    phone = Column(String(16))
+    owner_ref = Column(PickleType)
     country = Column(String(55))
-    full_name = Column(String(128))
-    birth_date = Column(String(12))
-    gender = Column(String(6))
+    birth_date = Column(String(55))    
     status = Column(String(55))
 
-    access_keys = relationship("AuthenticationKey", backref="subscriber", lazy="select")
+    access_keys = relationship("AuthenticationKey", backref="subscriber", lazy="select", cascade='delete')
 
     def __init__(self, **kwargs):
         # super().__init__(**kwargs["data"])
@@ -41,11 +40,13 @@ class Subscriber(dbase.Model):
         self.password = initializer("password", kwargs["data"])
         self.role = initializer("role", kwargs["data"])
         self.public_id = initializer("publicid", kwargs["data"])
-        self.phone = initializer("phone", kwargs["data"])
+        self.owner_ref = pickle.dumps(dict(
+            phone = initializer("phone", kwargs["data"]),
+            full_name = initializer("fullname", kwargs["data"]),
+            gender = initializer("gender", kwargs["data"])
+        ))
         self.country = initializer("country", kwargs["data"])
-        self.full_name = initializer("fullname", kwargs["data"])
         self.birth_date = initializer("birthdate", kwargs["data"])
-        self.gender = initializer("gender", kwargs["data"])
 
     def save(self):
 
@@ -71,7 +72,7 @@ class Subscriber(dbase.Model):
                 return True, subscriber
             return False, None
         except RuntimeError as error:
-            print(error)
+            logging.exception(error)
             return False, None
 
     def get_one(self, userid: str, role: str):
@@ -87,19 +88,29 @@ class Subscriber(dbase.Model):
             Subscriber.public_id.like(self.public_id)
         ).one_or_none()
 
+    def retrieve_profile_owner(self):
+        access_keys = self.access_keys[0].private_key
+        
+        if self.role == "doctor":
+            
+            owner = Doctor().retrieve_profile(access_keys)
+
+            return owner
+
+
 class AuthenticationKey(dbase.Model):
 
     """Store registered users hashed nif as private_key
     and public_id as public_key.
     """
 
-    __tablename__ = "authentication_keys"
+    __tablename__ = "authenticationkey"
     __bind_key__ = "subscribers"
     __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True)
-    private_key = Column(String(256), nullable=False)
-    subscriber_id = Column("subscriber_id", ForeignKey(Subscriber.id))
+    private_key = Column(Text, nullable=False)
+    subscriber_id = Column(ForeignKey(Subscriber.id))
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from enum import Enum
+import logging
 import os
 import uuid
 from datetime import timedelta, datetime
@@ -73,7 +74,7 @@ def token_required(f):
 def create_credencials():
     try:
         data = json.loads(request.data)
-
+        
         passwd = generate_password_hash(data["password"], method="sha256")
         username = data["phone"]
         fullname = generate_password_hash(data["fullname"], method="sha256")
@@ -89,13 +90,13 @@ def create_credencials():
         exists, user = subscriber.validate()
         
         if exists:
+            print(exists, user)
             return make_response(
                 {"response": "Failed to register with provided data."}, 403
             )
 
         user = subscriber.save()
         
-        print(current_app.config.get("SQLACHEMY_BINDS"))
         if user is not None:
             token = jwt.encode(
                 {
@@ -112,7 +113,7 @@ def create_credencials():
             response.headers.set("Authorization", token)
             return response
     except RuntimeError as error:
-        print(error)
+        logging.exception(error, stack_info=True)
 
 
 @auth.route("/authenticate", methods=["POST"])
@@ -157,11 +158,11 @@ def authenticate():
         return response
 
 
-@auth.route("/deauthenticate", methods=["POST"])
+@auth.route("/deauthenticate")
 @token_required
 def deauthenticate(currentuser: Subscriber = None):
     # user = currentuser.full_name
-
+    session.clear()
     response = make_response({"response": "Logged out successfully"})
     response.headers.add("WWW-Authenticate", 'Bearer realm="Loggin required"')
     response.set_cookie("token", "")
@@ -198,7 +199,7 @@ def add_authentication_keys(current_user: Subscriber, data=None):
                     current_app.secret_key
                 )
             return jsonify(
-                {"message": "Profile keys added successfully", "public_key": public_key.decode("UTF-8") }
+                {"message": "Profile keys added successfully", "public_key": public_key }
             )
         
         return jsonify({"Error": "Failed to create authentication keys"}), 500

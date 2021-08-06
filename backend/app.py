@@ -17,6 +17,10 @@ from backend.authentication.microservice import auth
 
 
 def api_configurations(app: Flask, template):
+    template['servers'][0]['variables']['port']['default'] = os.environ.get('FLASK_RUN_PORT')
+    app.config["SWAGGER"] = {"title": "OHC API", "uiversion": 3, "openapi": "3.0.1", "basePath":"/v1" }
+    swagger = Swagger(app, template=template)
+    # print(swagger.template['servers'][0]['variables'])
     pass
 
 def make_app(environment=None, log_handler=None):
@@ -27,7 +31,6 @@ def make_app(environment=None, log_handler=None):
     else:
         app.config.from_object(settings.DevelopmentConfig)
 
-    # app.run("0.0.0.0", port=8080, debug=True, load_dotenv=False)
     try:
         if not os.path.exists(app.instance_path):
             os.makedirs(app.instance_path)
@@ -36,15 +39,10 @@ def make_app(environment=None, log_handler=None):
 
     with open("./swagger/openapi.json") as file:
         template = json.loads(file.read())
+        api_configurations(app, template)
         file.close()
 
-    app.config["SWAGGER"] = {"title": "DONATE CARE", "uiversion": 3, "openapi": "3.0.1", "basePath":"/v1"}
-
-    swagger = Swagger(app, template=template)
-
-    # print(swagger.template['servers'][0]['variables'])
-
-
+    # initialize databases
     dbase.init_app(app)
 
     with app.app_context():
@@ -57,7 +55,6 @@ def make_app(environment=None, log_handler=None):
     
     @app.route("/")
     def index():
-        app.logger.info(request.full_path)
         return jsonify({"status" : "ok", "apiversion":"1.0.0"})
 
     return app

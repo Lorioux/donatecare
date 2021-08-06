@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Donate Care",
-    "description": "This is Microservices Server for the development of Donate Care Service APIs. ",
+    "title": "OHC - The OpenHealthCare Services",
+    "description": "This is our Server for the development of Open Health Care Microservice APIs. Open Health Care APIs is a community and open source project aiming at provisiong a worldwide plaform from free basic healhcare service. The server can be run in containerized environment, and can be downloaded from [docker public](https://dockerhub.com/devopsxea/openhc_api) repository.",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
       "email": "devops@merkatos.online"
@@ -84,775 +84,6 @@
     }
   ],
   "paths": {
-    "/practitioner/createProfile": {
-      "post": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Register a new practitioner in the co-operative",
-        "operationId": "create_practitioner_profile",
-        "requestBody": {
-          "description": "Practitioner's information that use for registration.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Practitioner"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "403": {
-            "description": "Invalid input",
-            "content": {}
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "write"
-            ]
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/practitioner/updateProfile":{
-      "put": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Update the practitioner information in the registries",
-        "operationId": "update_profile",
-        "requestBody": {
-          "description": "Practitioner information to be updated in the registries",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Practitioner"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {}
-          },
-          "400": {
-            "description": "Invalid ID supplied",
-            "content": {}
-          },
-          "404": {
-            "description": "Practitioner not found",
-            "content": {}
-          },
-          "405": {
-            "description": "Validation exception",
-            "content": {}
-          }
-        },
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/practitioner/{publicId}/licences": {
-      "get": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "List all registered licences of a practitioner",
-        "operationId": "list_licences",
-        "parameters": [
-          {
-            "name": "access_token",
-            "in": "header",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "publicId",
-            "in": "path",
-            "description": "Practitioner public id",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {}
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {}
-          }
-        },
-        "x-codegen-request-body-name": "body"
-      },
-      "put": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Add or update practioner's licences",
-        "operationId": "add_license",
-        "parameters": [
-          {
-            "name": "access_token",
-            "in": "header",
-            "description": "Authentication token",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "publicId",
-            "in": "path",
-            "description": "Practitioner's id in the registries",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "License records to be added",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/License"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {}
-          }
-        },
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/practioner/{publicId}/specialities": {
-      "put": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Update practioner's specialities",
-        "operationId": "update_specialty",
-        "parameters": [
-          {
-            "name": "access_token",
-            "in": "header",
-            "description": "Authentication token",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "publicId",
-            "in": "path",
-            "description": "Practitioner's public id in the registries",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "Speciality information to be update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Speciality"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful speciality update",
-            "content": {}
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Add practioner's specialities",
-        "operationId": "add_specialty",
-        "parameters": [
-          {
-            "name": "access_token",
-            "in": "header",
-            "description": "Authentication token",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "publicId",
-            "in": "path",
-            "description": "Practitioner's public id in the registries",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "Speciality information to be update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Speciality"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful speciality update",
-            "content": {}
-          },
-          "400": {
-            "description": "Invalid input",
-            "content": {}
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {}
-          }
-        },
-        "x-codegen-request-body-name": "body"
-      }      
-    },
-    "/practitioner/findByCriteria": {
-      "get": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Finds practitioners by status",
-        "description": "Single status value shall be provided",
-        "operationId": "find_practtioners_by_criteria",
-        "parameters": [
-          {
-            "name": "criteria",
-            "in": "query",
-            "description": "Criteria values that need to be considered for filter",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "default": "speciality-only",
-                "enum": [
-                  "speciality-only",
-                  "location-only",
-                  "mode-only",
-                  "speciality-location",
-                  "speciality-location-mode",
-                  "none"
-                ]
-              }
-            }
-          },
-          {
-            "name": "speciality",
-            "in": "query",
-            "description": "practitioner speciality",
-            "required": false,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "location",
-            "in": "query",
-            "description": "pratitioner location",
-            "required": false,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "mode",
-            "in": "query",
-            "description": "consultation mode: video or presential ",
-            "required": false,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Practitioner"
-                  },
-                  "x-content-type": "application/xml"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Practitioner"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid criteria value",
-            "content": {}
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/practitioner/findByAvailability": {
-      "description": "This operation will be available in future versions",
-      "get": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Finds practitioner by availabality",
-        "description": "For availability based search date and time parameters are required, alongside speciality, location or mode",
-        "operationId": "find_practitoners_by_date_time",
-        "parameters": [
-          {
-            "name": "date",
-            "in": "query",
-            "description": "Tags to filter by",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Practitioner"
-                  },
-                  "x-content-type": "application/xml"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Practitioner"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid tag value",
-            "content": {}
-          }
-        },
-        "deprecated": true,
-        "security": [
-          {
-            "oauth2": [
-              "write",
-              "read"
-            ]
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/practitioner/uploadLicenseCertificate": {
-      "post": {
-        "tags": [
-          "practitioner"
-        ],
-        "summary": "Help practitioner registration operation to upload certificates",
-        "operationId": "upload_certificate",
-        "parameters": [
-          {
-            "name": "publicId",
-            "in": "cookie",
-            "description": "practitioner temporary public Id after login",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "access_token",
-            "in": "cookie",
-            "description": "temporary authorization token after login",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "Certificate copy",
-          "content": {
-            "application/octet-stream": {
-              "schema": {
-                "type": "object",
-                "format": "base64"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {}
-          }
-        },
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/beneficiary": {
-      "put": {
-        "tags": [
-          "beneficiary"
-        ],
-        "summary": "Update beneficiary entity",
-        "operationId": "update_beneficiary_profile",
-        "requestBody": {
-          "description": "Beneficiary information to update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Beneficiary"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success operation"
-          },
-          "403": {
-            "description": "Invalid input"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "write",
-              "read"
-            ]
-          },
-          {
-            "jwt_auth": [
-              "access_token"
-            ]
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      },
-      "post": {
-        "tags": [
-          "beneficiary"
-        ],
-        "summary": "Create a beneficiary entity in the registries",
-        "operationId": "create_beneficiary_profile",
-        "requestBody": {
-          "description": "Beneficiary personal information",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Beneficiary"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success operation"
-          },
-          "403": {
-            "description": "Invalid input"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "write",
-              "read"
-            ]
-          },
-          {
-            "jwt_auth": [
-              "access_token"
-            ]
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/booking/makeAppointment": {
-      "post": {
-        "tags": [
-          "booking"
-        ],
-        "summary": "Make appointment",
-        "operationId": "make_appointment",
-        "requestBody": {
-          "description": "Appointment for consultation",
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/Appointment"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/Appointment"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Appointment"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Order",
-            "content": {}
-          }
-        },
-        "x-codegen-request-body-name": "body"
-      }
-    },
-    "/appointment/findByName": {
-      "get": {
-        "tags": [
-          "booking"
-        ],
-        "summary": "Returns appointments by entity role, name and status",
-        "description": "Returns a map of status codes to quantities",
-        "operationId": "find_appointments_by_name",
-        "parameters": [
-          {
-            "name": "role",
-            "in": "query",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "doctor",
-                "patient"
-              ]
-            }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "open",
-                "delivered",
-                "cancelled"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "x-content-type": "application/json"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/appointment/{appointmentId}'": {
-      "get": {
-        "tags": [
-          "booking"
-        ],
-        "summary": "Find appointment by ID",
-        "description": "For valid response try integer IDs with value >= 1 and <= 10.         Other values will generated exceptions",
-        "operationId": "get_order_by_id",
-        "parameters": [
-          {
-            "name": "appointmentId",
-            "in": "path",
-            "description": "ID of an appointment that needs to be fetched",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "maximum": 10,
-              "minimum": 1,
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/Appointment"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Appointment"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid ID supplied",
-            "content": {}
-          },
-          "404": {
-            "description": "Order not found",
-            "content": {}
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "booking"
-        ],
-        "summary": "Delete appointment by ID",
-        "description": "For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors",
-        "operationId": "delete_order",
-        "parameters": [
-          {
-            "name": "appointmentId",
-            "in": "path",
-            "description": "ID of the appointment that needs to be deleted",
-            "required": true,
-            "style": "simple",
-            "explode": false,
-            "schema": {
-              "minimum": 1,
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Invalid ID supplied",
-            "content": {}
-          },
-          "404": {
-            "description": "Order not found",
-            "content": {}
-          }
-        }
-      }
-    },
     "/members/createCredentials": {
       "post": {
         "tags": [
@@ -896,7 +127,7 @@
         "tags": [
           "members"
         ],
-        "summary": "Logs user into the system",
+        "summary": "Logs user into to access the services",
         "operationId": "authenticate",
         "parameters": [
           {
@@ -990,11 +221,11 @@
       }
     },
     "/members/deauthenticate": {
-      "post": {
+      "get": {
         "tags": [
           "members"
         ],
-        "summary": "Logs out current logged in user session",
+        "summary": "Logs out current user and clear session.",
         "operationId": "deauthenticate",
         "responses": {
           "default": {
@@ -1006,8 +237,9 @@
     },
     "/members/{username}": {
       "get": {
+        "deprecated": true,
         "tags": [
-          "members"
+          "members_future"
         ],
         "summary": "Get user by user name",
         "operationId": "get_user_by_name",
@@ -1052,8 +284,9 @@
         "x-codegen-request-body-name": "body"
       },
       "delete": {
+        "deprecated": true,
         "tags": [
-          "members"
+          "members_future"
         ],
         "summary": "Delete user",
         "description": "This can only be done by the logged in user.",
@@ -1086,8 +319,9 @@
     },
     "/members/profile/{publicId}/uploadImage": {
       "post": {
+        "deprecated": true,
         "tags": [
-          "members"
+          "members_future"
         ],
         "summary": "uploads profile image",
         "operationId": "upload_profile_image",
@@ -1109,7 +343,7 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/publicId_uploadImage_body"
+                "$ref": "#/components/schemas/PublicId_uploadImage_body"
               }
             }
           }
@@ -1137,18 +371,562 @@
         "x-codegen-request-body-name": "body"
       }
     },
-    "/scheduling/addSchedule": {
+    "/practitioner/createProfile": {
+      "post": {
+        "tags": [
+          "practitioner"
+        ],
+        "summary": "Register a new practitioner in the co-operative",
+        "operationId": "create_practitioner_profile",
+        "requestBody": {
+          "description": "Practitioner's information that use for registration.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Practitioner"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Invalid input",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/practitioner/updateProfile":{
+      "put": {
+        "deprecated": true,
+        "tags": [
+          "practitioner_future"
+        ],
+        "summary": "Update the practitioner information in the registries",
+        "operationId": "update_profile",
+        "requestBody": {
+          "description": "Practitioner information to be updated in the registries",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Practitioner"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Practitioner not found",
+            "content": {}
+          },
+          "405": {
+            "description": "Validation exception",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/practitioner/{publicId}/licences": {
+      "get": {
+        "tags": [
+          "practitioner"
+        ],
+        "summary": "List all registered licences of a practitioner",
+        "description": "This operation require a Token in the browser cookies with after login. If not logged in yet, then try to login to get the token",
+        "operationId": "list_licences",
+        "parameters": [
+          {
+            "name": "publicId",
+            "in": "path",
+            "description": "Practitioner public id as reference to fetch data",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      },
+      "put": {
+        "deprecated": true,
+        "tags": [
+          "practitioner_future"
+        ],
+        "summary": "Add or update practioner's licences",
+        "operationId": "add_license",
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "header",
+            "description": "Authentication token",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "publicId",
+            "in": "path",
+            "description": "Practitioner's id in the registries",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "License records to be added",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/License"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/specialities/fetchAll": {
+      "get": {
+        "tags": [
+          "practitioner"
+        ],
+        "summary": "List all registered specialities",
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {}
+          }
+        }       
+      },
+      "put": {
+        "deprecated": true,
+        "tags": [
+          "practitioner_future"
+        ],
+        "summary": "Update practioner's specialities",
+        "operationId": "update_specialty",
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "header",
+            "description": "Authentication token",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "publicId",
+            "in": "path",
+            "description": "Practitioner's public id in the registries",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Speciality information to be update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Speciality"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful speciality update",
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "deprecated": true,
+        "tags": [
+          "practitioner_future"
+        ],
+        "summary": "Add practioner's specialities",
+        "operationId": "add_specialty",
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "header",
+            "description": "Authentication token",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "publicId",
+            "in": "path",
+            "description": "Practitioner's public id in the registries",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Speciality information to be update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Speciality"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful speciality update",
+            "content": {}
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }     
+    },
+    "/specialities/searchPerTitle": {
+      "get": {
+        "tags": [
+          "practitioner"
+        ],
+        "summary": "Search registered speciality per specified title and fetch if any",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "required": true,
+            "description": "Speciality title",
+            "schema":{
+              "type": "string",
+              "default": "Nutritionist",
+              "enum": [
+                "Dentist",
+                "Nutritionist"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {}
+          }
+        }       
+      }
+    },
+    "/practitioners/findByCriteria": {
+      "get": {
+        "tags": [
+          "practitioner"
+        ],
+        "summary": "Finds and filter registered practitioners by criteria",
+        "description": "Find practitoners based on the defined criteria for the searching. Ensure that criteria is selected and corresponding parameters are provided too for a better outcome.",
+        "operationId": "find_practtioners_by_criteria",
+        "parameters": [
+          {
+            "name": "criteria",
+            "in": "query",
+            "description": "Criteria values that need to be considered for filter",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "default": "speciality-only",
+                "enum": [
+                  "speciality-only",
+                  "location-only",
+                  "mode-only",
+                  "speciality-location",
+                  "speciality-location-mode",
+                  "none"
+                ]
+              }
+            }
+          },
+          {
+            "name": "speciality",
+            "in": "query",
+            "description": "practitioner speciality",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items":{
+                "type": "string",
+                "default": "Dentist",
+                "enum": [
+                  "Dentist",
+                  "Nutritionist"
+                ]
+              }
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "pratitioner location",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items":{
+                "type": "string",
+                "default": "Oeiras",
+                "enum": [
+                  "Oeiras",
+                  "Lisbon"
+                ]
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "description": "consultation mode: video or presential ",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items":{
+                "type": "string",
+                "default": "presential",
+                "enum": [
+                  "presential",
+                  "video"
+                ]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                    "$ref": "#/components/schemas/PractitionersListingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid criteria value",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "jwt_token": []
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/practitioner/findByAvailability": {
+      "description": "These operations will be available in future versions",
+      "get": {
+        "deprecated": true,
+        "tags": [
+          "practitioner_future"
+        ],
+        "summary": "Finds practitioner by availabality",
+        "description": "For availability based search date and time parameters are required, alongside speciality, location or mode",
+        "operationId": "find_practitoners_by_date_time",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Tags to filter by",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Practitioner"
+                  },
+                  "x-content-type": "application/xml"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Practitioner"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tag value",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write",
+              "read"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/practitioner/uploadLicenseCertificate": {
+      "post": {
+        "deprecated": true,
+        "tags": [
+          "practitioner_future"
+        ],
+        "summary": "Help practitioner registration operation to upload certificates",
+        "operationId": "upload_certificate",
+        "parameters": [
+          {
+            "name": "publicId",
+            "in": "cookie",
+            "description": "practitioner temporary public Id after login",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "cookie",
+            "description": "temporary authorization token after login",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Certificate copy",
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "object",
+                "format": "base64"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/schedules/createSchedule": {
       "post": {
         "tags": [
           "scheduling"
         ],
-        "summary": "Place availability schedule",
+        "summary": "Place practitioner availability schedule with timeslots",
         "operationId": "add_schedule",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Schedule"
+                "type": "array",
+                "items":{
+                  "$ref": "#/components/schemas/Schedule"
+                }
               }
             }
           }
@@ -1164,6 +942,326 @@
             "oauth2": [
               "write",
               "read"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/schedules/updateSchedule": {
+      "put": {
+        "tags": [
+          "scheduling"
+        ],
+        "summary": "Place an update on reqgistered schedules by practitioner",
+        "operationId": "update_schedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items":{
+                  "$ref": "#/components/schemas/Schedule"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write",
+              "read"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/appoitments/makeAppointment": {
+      "post": {
+        "tags": [
+          "booking"
+        ],
+        "summary": "Make appointment",
+        "description": "Beneficiaries could make appoitments or an assistant should register an appoitment. So, only members with role of beneficiary are allowed to make appointments." ,
+        "operationId": "make_appointment",
+        "requestBody": {
+          "description": "Appointment for consultation",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Appointment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Appointment"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Order",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/appointment/findByName": {
+      "get": {
+        "deprecated": true,
+        "tags": [
+          "booking_future"
+        ],
+        "summary": "Returns appointments by entity role, name and status",
+        "description": "Returns a map of status codes to quantities",
+        "operationId": "find_appointments_by_name",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "doctor",
+                "patient"
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "delivered",
+                "cancelled"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "x-content-type": "application/json"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/appointment/{appointmentId}'": {
+      "get": {
+        "deprecated": true,
+        "tags": [
+          "booking_future"
+        ],
+        "summary": "Find appointment by ID",
+        "description": "For valid response try integer IDs with value >= 1 and <= 10.         Other values will generated exceptions",
+        "operationId": "get_order_by_id",
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "description": "ID of an appointment that needs to be fetched",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "maximum": 10,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Appointment"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Order not found",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "deprecated": true,
+        "tags": [
+          "booking_future"
+        ],
+        "summary": "Delete appointment by ID",
+        "description": "For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors",
+        "operationId": "delete_order",
+        "parameters": [
+          {
+            "name": "appointmentId",
+            "in": "path",
+            "description": "ID of the appointment that needs to be deleted",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Order not found",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/beneficiary": {
+      "post": {
+        "tags": [
+          "beneficiary"
+        ],
+        "summary": "Create a beneficiary entity in the registries",
+        "operationId": "create_beneficiary_profile",
+        "requestBody": {
+          "description": "Beneficiary personal information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Beneficiary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation"
+          },
+          "403": {
+            "description": "Invalid input"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write",
+              "read"
+            ]
+          },
+          {
+            "jwt_auth": [
+              "access_token"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      },
+      "put": {
+        "deprecated": true,
+        "tags": [
+          "beneficiary_future"
+        ],
+        "summary": "Update beneficiary entity",
+        "operationId": "update_beneficiary_profile",
+        "requestBody": {
+          "description": "Beneficiary information to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Beneficiary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation"
+          },
+          "403": {
+            "description": "Invalid input"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write",
+              "read"
+            ]
+          },
+          {
+            "jwt_auth": [
+              "access_token"
             ]
           }
         ],
@@ -1189,19 +1287,20 @@
             "format": "int64"
           },
           "practitionerId": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "description": "Practitioner's profile public ID"
           },
           "speciality": {
-            "type": "string"
+            "type": "string",
+            "description": "Consultation required speciality"
           },
           "consultationDate": {
             "type": "string",
             "format": "date-time"
           },
           "beneficiaryId": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "description": "Beneficiary profile public ID"
           },
           "remarks": {
             "type": "string"
@@ -1221,13 +1320,12 @@
           }
         },
         "example": {
-          "speciality": "speciality",
+          "speciality": "Nutritionist",
           "consultationDate": "2000-01-23T04:56:07.000Z",
-          "id": 0,
           "complete": false,
-          "practitionerId": 6,
+          "practitionerId": "asecaecavav.daddeadaaaa-dasfase4vadasa-dadasscasda",
           "remarks": "remarks",
-          "beneficiaryId": 1,
+          "beneficiaryId": "mjuujj8388-4-52-2fwfasaa-e3434234242342342-e2332323",
           "status": "open"
         }
       },
@@ -1489,11 +1587,11 @@
       "Practitioner": {
         "required": [
           "addresses",
-          "birthDate",
+          "birthdate",
           "licences",
           "fullname",
           "phone",
-          "photoUrl",
+          "photo",
           "role",
           "specialities",
           "taxid",
@@ -1530,7 +1628,7 @@
           "taxid": {
             "type": "string"
           },
-          "birthDate": {
+          "birthdate": {
             "type": "string",
             "format": "date"
           },
@@ -1549,7 +1647,7 @@
           "role": {
             "type": "string"
           },
-          "photoUrl": {
+          "photo": {
             "type": "string"
           }
         },
@@ -1571,20 +1669,20 @@
           "fullname": "John Melo",
           "licences": [
             {
-              "issuingOrg": "Organization One",
+              "issuingorg": "Organization One",
               "code": "code",
-              "endDate": "2000-01-23T00:00:00.000Z",
-              "issuingCountry": "Portugal",
-              "certificateUrl": "certificateUrl",
-              "issueDate": "2000-01-23T00:00:00.000Z"
+              "enddate": "2000-01-23T00:00:00.000Z",
+              "issuingcountry": "Portugal",
+              "certificate": "certificateUrl",
+              "issuedate": "2000-01-23T00:00:00.000Z"
             },
             {
-              "issuingOrg": "Organization One",
+              "issuingorg": "Organization One",
               "code": "code",
-              "endDate": "2000-01-23T00:00:00.000Z",
-              "issuingCountry": "Portugal",
-              "certificateUrl": "certificateUrl",
-              "issueDate": "2000-01-23T00:00:00.000Z"
+              "enddate": "2000-01-23T00:00:00.000Z",
+              "issuingcountry": "Portugal",
+              "certificate": "certificateUrl",
+              "issuedate": "2000-01-23T00:00:00.000Z"
             }
           ],
           "birthdate": "1989-04-01",
@@ -1665,7 +1763,171 @@
           "message": "message"
         }
       },
-      "publicId_uploadImage_body": {
+      "PractitionersListingResponse":{
+        "type": "object",
+        "properties": {
+          "metadata":{
+            "properties": {
+              "requestTime":{
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "responseTime": {
+                "type": "string"
+              },
+              "speciality": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "responses": {
+                "type": "string",
+                "description": "#of responses"
+              }
+            }
+          },
+          "summary":{
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "public_id": {
+                  "description": "ID to be used to interact with the system for a specific practitioner",
+                  "type": "string"
+                },
+                "specialities": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Speciality"
+                  }
+                },
+                "licences": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/License"
+                  }
+                },
+                "addresses": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                },
+                "fullname": {
+                  "type": "string",
+                  "example": "John Melo"
+                },
+                
+                "mode":{
+                  "description": "Consultation mode",
+                  "type": "string",
+                  "default": "video",
+                  "enum": [
+                    "video", "presencial", "both"
+                  ]
+                },
+                "role": {
+                  "type": "string"
+                },
+                "photo": {
+                  "type": "string"
+                }
+              } 
+            }          
+          }
+        }
+      },
+      "SpecialitiesListingResponse":{
+        "type": "object",
+        "properties": {
+          "metadata":{
+            "properties": {
+              "requestTime":{
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "responseTime": {
+                "type": "string"
+              },
+              "requestType": {
+                "type": "string"
+              },
+              "responses": {
+                "type": "string",
+                "description": "#of responses"
+              }
+            }
+          },
+          "summary":{
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "public_id": {
+                  "description": "ID to be used to interact with the system for a specific practitioner",
+                  "type": "string"
+                },
+                "specialities": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Speciality"
+                  }
+                }
+              } 
+            }          
+          }
+        }
+      },
+      "LicencesListingResponse":{
+        "type": "object",
+        "properties": {
+          "metadata":{
+            "properties": {
+              "requestTime":{
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "responseTime": {
+                "type": "string"
+              },
+              "requestType": {
+                "type": "string"
+              },
+              "responses": {
+                "type": "string",
+                "description": "#of responses"
+              }
+            }
+          },
+          "summary":{
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "public_id": {
+                  "description": "ID to be used to interact with the system for a specific practitioner",
+                  "type": "string"
+                },
+                "licences": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/License"
+                  }
+                }
+              } 
+            }          
+          }
+        }
+      },
+      "AppointmentModel":{},
+      "PublicId_uploadImage_body": {
         "properties": {
           "additionalMetadata": {
             "type": "string",

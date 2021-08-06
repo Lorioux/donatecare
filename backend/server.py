@@ -33,11 +33,14 @@ def setup_logging():
         log.addHandler(logging.StreamHandler(stream=sys.stdout))
     else:
         log.addHandler(handler)
+
 @app.after_request
 def log_request(response):
-    
-    app.logger.log(logging.DEBUG, msg="REQ: {} {} {}".format(request.method, request.path, response.status_code))
-    # app.logger.log(logging.DEBUG, msg="REQ: {} {} {}".format(request.method, request.path, response.status))
+    app.logger.log(
+                logging.DEBUG, 
+                msg="REQ: {} {} {}".format(request.method, 
+                request.path, 
+                response.status_code ))
     return response
 
-serve(app, port=8080)
+serve(app, port=80)

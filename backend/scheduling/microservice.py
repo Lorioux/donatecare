@@ -2,75 +2,85 @@ from __future__ import absolute_import
 
 
 from logging import Logger
-from os import abort
-from flask import Blueprint, json, jsonify, request
+from flask import Blueprint, json, jsonify, request, abort
 from flask.helpers import url_for
 from sqlalchemy.sql.elements import and_
 from werkzeug.utils import redirect
 
 from backend.scheduling.models import Schedule
+from backend.authentication import token_required
 
-LOG = Logger("SCHEDULING")
-schedules = Blueprint("schedules", __name__, url_prefix="/schedules")
+LOG = Logger("SCHEDULING", 50)
+schedules = Blueprint("schedules", __name__, url_prefix="/v1/schedules")
 
 
 @schedules.route("/createSchedule", methods=["POST"])
-def create(schedule=None):
-    # create a single
-    if schedule is not None:
-        res = Schedule(
-            year=schedule["year"],
-            weeks=schedule["weeks"],
-            month=schedule["month"],
-            doctor_nif=schedule["doctorId"],
-        ).save()
-        return res
+@token_required
+def create_schedule(current_user, schedule=None):
+    if current_user.role == "doctor":
+        print(len(current_user.access_keys))
+        if len(current_user.access_keys) > 0:
+            private_key = current_user.access_keys[0].private_key
+            # create a single
+            if schedule is not None:
+                res = Schedule(
+                    year=schedule["year"],
+                    weeks=schedule["weeks"],
+                    month=schedule["month"],
+                    private_key=private_key,
+                ).save()
+                if res:
+                    return jsonify({"message": "Schedule created successfully."})
 
-    # create multiple
-    data = json.loads(request.data)
-    count = data.__len__()
-    schedules = [
-        Schedule(
-            year=schedule["year"],
-            weeks=schedule["weeks"],
-            month=schedule["month"],
-            doctor_nif=schedule["doctorId"],
-        ).save()
-        for schedule in data
-        if schedule is not None
-    ]
+            # create multiple
+            data = json.loads(request.data)
+            count = data.__len__()
+            schedules = [
+                Schedule(
+                    year=schedule["year"],
+                    weeks=schedule["weeks"],
+                    month=schedule["month"],
+                    doctor_nif=private_key,
+                ).save()
+                for schedule in data
+                if schedule is not None
+            ]
 
-    if not None in schedules and len(schedules) == count:
-        return jsonify("successfully")
-
-    return abort()
+            if not None in schedules and len(schedules) == count:
+                return jsonify({"message": "Schedule created successfully."})
+        return jsonify({"Error": "Create a practitioner profile to be able of adding schedules"}), 401
+    abort(403, jsonify({"Error":"Not authorized to add schedules"}))
 
 
 @schedules.route("/updateSchedule", methods=["PUT"])
-def update():
+@token_required
+def update_schedule(current_user):
     data = json.loads(request.data)
     old = None
     for schedule in data:
+        private_key = current_user.access_keys[0].private_key
         if schedule is not None:
             old = Schedule.query.filter(
                 and_(
                     Schedule.month.like(schedule["month"]),
                     Schedule.year == schedule["year"],
                 ),
-                Schedule.doctor_nif == schedule["doctorId"],
+                Schedule.doctor_nif == private_key,
             ).one_or_none()
             if old is None:
                 redirect(url_for(".create", schedule=schedule))
             old.weeks.update(schedule["weeks"])
 
-    print(old.weeks)
     return jsonify(old.weeks)
 
 
-@schedules.errorhandler(401)
-def create_error():
-    return "Not Allowed"
+# @schedules.errorhandler(401)
+# def create_error(code):
+#     return "Not Allowed"
 
+@schedules.errorhandler(403)
+def wrong_schedule_data(code):
+    return jsonify({"Error": "Provided data is not supported"})
 
 @schedules.route("/all")
 def get_all():
