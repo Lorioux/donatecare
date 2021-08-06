@@ -63,7 +63,8 @@ def make_appointment(data=None):
     #         beneficiaryNIF=data.beneficiaryNIF )
     
         return jsonify({"query": beneficiary[0].fullname})
-    return redirect(url_for("members.subscribe", _method="GET", data="TEST")
+    return redirect(url_for("members.subscribe", _method="GET", data="TEST"))
+
 
 
 
