@@ -38,12 +38,7 @@ def token_required(f):
             data = jwt.decode(
                 autho, current_app.config["SECRET_KEY"], algorithms="HS256"
             )
-            current_user = Subscriber.query.filter(
-                and_(
-                    Subscriber.public_id.like(data["public_id"]),
-                    Subscriber.user_name.like(data["user_name"]),
-                )
-            ).first()
+            current_user = retrieve_subscriber(data)
             if current_user is None:
                 raise jwt.InvalidTokenError
         except RuntimeError as error:
@@ -119,7 +114,6 @@ def create_credencials():
 @auth.route("/authenticate", methods=["POST"])
 def authenticate():
     data = request.args.to_dict(flat=True)
-
     if data is None or data == {}:
         data = json.loads(request.data)
 
@@ -152,7 +146,7 @@ def authenticate():
             current_app.config["SECRET_KEY"],
             algorithm="HS256",
         )
-        response = make_response({"response": "Logged in successfully"})
+        response = make_response({"response": "Logged in successfully", "token": token})
         response.set_cookie("token", token)
         response.headers.add_header("Authentication", f"Bearer {token}")
         return response
@@ -203,3 +197,9 @@ def add_authentication_keys(current_user: Subscriber, data=None):
             )
         
         return jsonify({"Error": "Failed to create authentication keys"}), 500
+
+
+    
+
+def retrieve_subscriber(data: dict):
+    return Subscriber().retrieve_subscriber(data['public_id'], data['user_name'])

@@ -1,3 +1,4 @@
+#!/bin/env python
 from __future__ import absolute_import
 
 import logging
@@ -6,6 +7,7 @@ sys.path.append("..")
 
 
 from flask import Flask, jsonify, json
+from flask_lambda import FlaskLambda
 from flasgger import Swagger
 
 from backend import initialize_dbase, dbase, settings
@@ -24,7 +26,7 @@ def api_configurations(app: Flask, template):
     pass
 
 def make_app(environment=None, log_handler=None):
-    app = Flask(__name__, instance_relative_config=True)
+    app = FlaskLambda(__name__, instance_relative_config=True)
 
     if environment:
         app.config.from_object(environment)

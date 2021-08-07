@@ -252,6 +252,7 @@ class Doctor(dbase.Model):
                 return doctor
             return None
 
+
     def delete(self):
         session.delete(self)
         session.commit()
@@ -372,11 +373,17 @@ class Doctor(dbase.Model):
         except RuntimeError as error:
             return False
 
-    def disassociate_beneficiary(self, beneficiary: Beneficiary):
+    def disassociate_beneficiary(self, beneficiary: dict):
         session.add(self)
+        
         try:
-            
-            self.beneficiaries.remove(beneficiary)
+            for ben in self.beneficiaries:
+                if check_password_hash(ben.phone, beneficiary.get("phone")):
+                    self.beneficiaries.remove(ben)
+                    session.add(ben)
+                    ben.delete()
+            session.flush()
+            # self.beneficiaries.remove(beneficiary)
             return True
         except RuntimeError as error:
             logging.exception(error, stack_info=True)

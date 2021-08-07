@@ -39,9 +39,9 @@ profiles = Blueprint(
 def create_practitioner_profile(current_user: Subscriber=None):
 
     if not current_user.role in ["doctor"]:
-        error = "Only practitioners can create a profile"
+        error = "Only authenticated practitioners can create a practitioner's profile"
         flash(error, category="error")
-        return jsonify({"Error": error}), 405
+        return jsonify({"Error": "Not allowed", "message": error}), 403
 
     profile : dict = request.get_json()
     role = "practitioner"
@@ -567,13 +567,24 @@ def associate_beneficiary_to_carer(current_user: Subscriber, beneficiary: Benefi
 
 @profiles.route('/disassociateBeneficiary', methods=['POST'])
 @token_required
-def disassociate_beneficiary(current_user: Subscriber, beneficiary):
+def disassociate_beneficiary(current_user: Subscriber, beneficiary: dict=None):
     carer : Doctor = current_user.retrieve_profile_owner()
-    if carer is None:
-        
-        return None
+
+    if beneficiary is None:
+        beneficiary = request.get_json()
     
-    return carer.disassociate_beneficiary(beneficiary)
+    keys, valid = validate_beneficiary_entries(beneficiary)
+    
+    if not valid:
+        return make_response({"Error": "Invalid beneficiary data entries", "message": f"Valid entries are: {keys}"}, 403)
+    
+    if carer is None:
+        return make_response({"Error": "Invalid practitioner"}, 403)
+
+    if carer.disassociate_beneficiary(beneficiary):
+        return make_response({"message": "Beneficiary disassociated from practitioners profile successfully"})
+    
+    return make_response({"Error": "Beneficiary NOT disassociated."}, 403)
     
 
 
@@ -636,4 +647,15 @@ def validate_profile_entries(profile_entry: dict, role: str):
     return list(keys), set(profile_entry.keys()).difference(keys) == set()
 
 
-
+def validate_beneficiary_entries(beneficiary: dict):
+    keys = {
+        "role",
+        "fullname",
+        "birthdate",
+        "gender",
+        "photo",
+        "phone",
+        "taxid",
+        "addresses",
+    }
+    return keys, set(beneficiary.keys()).difference(keys) == set()

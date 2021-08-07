@@ -36,17 +36,18 @@ class Subscriber(dbase.Model):
 
     def __init__(self, **kwargs):
         # super().__init__(**kwargs["data"])
-        self.user_name = initializer("username", kwargs["data"])
-        self.password = initializer("password", kwargs["data"])
-        self.role = initializer("role", kwargs["data"])
-        self.public_id = initializer("publicid", kwargs["data"])
-        self.owner_ref = pickle.dumps(dict(
-            phone = initializer("phone", kwargs["data"]),
-            full_name = initializer("fullname", kwargs["data"]),
-            gender = initializer("gender", kwargs["data"])
-        ))
-        self.country = initializer("country", kwargs["data"])
-        self.birth_date = initializer("birthdate", kwargs["data"])
+        if 'data' in kwargs:
+            self.user_name = initializer("username", kwargs["data"])
+            self.password = initializer("password", kwargs["data"])
+            self.role = initializer("role", kwargs["data"])
+            self.public_id = initializer("publicid", kwargs["data"])
+            self.owner_ref = pickle.dumps(dict(
+                phone = initializer("phone", kwargs["data"]),
+                full_name = initializer("fullname", kwargs["data"]),
+                gender = initializer("gender", kwargs["data"])
+            ))
+            self.country = initializer("country", kwargs["data"])
+            self.birth_date = initializer("birthdate", kwargs["data"])
 
     def save(self):
 
@@ -96,6 +97,15 @@ class Subscriber(dbase.Model):
             owner = Doctor().retrieve_profile(access_keys)
 
             return owner
+
+    def retrieve_subscriber(self, public_id: str, user_name: str):
+        return self.query.filter(
+                and_(
+                    Subscriber.public_id.like(public_id),
+                    Subscriber.user_name.like(user_name),
+                )
+            ).first()
+
 
 
 class AuthenticationKey(dbase.Model):

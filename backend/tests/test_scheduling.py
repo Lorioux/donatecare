@@ -7,7 +7,7 @@ import pytest
 from flask import url_for
 
 
-@pytest.mark.run(order=10)
+@pytest.mark.run(order=9)
 def test_add_schedules(client, schedules):
     url = url_for("schedules.create_schedule")
     rv = client.post(
@@ -20,7 +20,7 @@ def test_add_schedules(client, schedules):
     assert "successfully" in str(rv.data)
 
 
-@pytest.mark.run(order=11)
+@pytest.mark.run(order=10)
 def test_update_schedules(client, schedules):
     schedules[0]["weeks"]["week31"]["timeslots"]["fri"] = ["08:00", "14:00"]
     schedules[0]["weeks"].update(

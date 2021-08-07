@@ -16,23 +16,11 @@ schedules = Blueprint("schedules", __name__, url_prefix="/v1/schedules")
 
 @schedules.route("/createSchedule", methods=["POST"])
 @token_required
-def create_schedule(current_user, schedule=None):
+def create_schedule(current_user):
     if current_user.role == "doctor":
-        print(len(current_user.access_keys))
+        
         if len(current_user.access_keys) > 0:
             private_key = current_user.access_keys[0].private_key
-            # create a single
-            if schedule is not None:
-                res = Schedule(
-                    year=schedule["year"],
-                    weeks=schedule["weeks"],
-                    month=schedule["month"],
-                    private_key=private_key,
-                ).save()
-                if res:
-                    return jsonify({"message": "Schedule created successfully."})
-
-            # create multiple
             data = json.loads(request.data)
             count = data.__len__()
             schedules = [

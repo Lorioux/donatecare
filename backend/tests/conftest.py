@@ -2,8 +2,9 @@ from __future__ import absolute_import
 import json
 # import subprocess as subpro
 import os
+import logging
 from flask.helpers import url_for
-# from flask.wrappers import Response
+
 
 
 
@@ -28,7 +29,7 @@ def app():
 def runner(app):
     return app.test_cli_runner()
 
-# @pytest.fixture
+
 @pytest.fixture(scope='session')
 def client(app):
     with app.test_request_context():
@@ -121,30 +122,6 @@ def beneficiary(address):
     yield beneficiary
 
 
-# @app.teardown_appcontext
-def delete_tables(doctor=None, beneficiary=None):
-    if doctor:
-        Doctor.query.filter(
-            and_(
-                Doctor.name == doctor["name"],
-                Doctor.nif == doctor["taxid"],
-                Doctor.phone == doctor["phone"],
-            )
-        ).delete()
-
-    if beneficiary:
-        Doctor.query.filter(
-            and_(
-                Doctor.name == doctor["name"],
-                Doctor.nif == doctor["taxid"],
-                Doctor.phone == doctor["phone"],
-            )
-        ).delete()
-    # dbase.drop_all()
-    dbase.session.commit()
-    pass
-
-
 # Scheduling configurations
 @pytest.fixture
 def schedules(processor):
@@ -174,7 +151,7 @@ def subscriber():
         username="+351930400399",
         password="sacadcadffadadadadas",
         role="doctor",
-        dob="2012/03/26",
+        birthdate="2012/03/26",
         phone="+351930400399",
         fullname="John Doe",
         country="Portugal",
@@ -184,14 +161,13 @@ def subscriber():
         username="+351930400391",
         password="sacadcadffadadadadas",
         role="beneficiary",
-        dob="2012/03/26",
+        birthdate="2012/03/26",
         phone="+351930400391",
         fullname="Charley de Melo",
         country="Portugal",
         gender="Female",
     )]
     yield subscriber
-
 
 
 class AuthActions(object):
@@ -219,16 +195,29 @@ class AuthActions(object):
 
 
 @pytest.fixture
-def credentials(client):
+def credencials(client):
     actions = AuthActions(client)
     yield actions
 
 
 
+@pytest.fixture
+def appointment():
+    appointment = dict(
+        date = "2021-05-01", 
+        time = "12:30",
+        doctor_name = "John Doe",
+        doctor_speciality = "Nutritionist",
+        doctor_id = "mnjkkngvbnnhogivucvghbjnobvhihbjnb hvjhjp-ascasaertrytu74453-35",
+        beneficiary_phone = "+351 9200 300 299",
+        beneficiary_name = "Marter Riberio",
+        beneficiary_id = "fguhiojlbjhjvygifjcvkhj76576789y8gfyctugvhbjo98t90pik-nbgft",
+        remarks = "Remarks"
+    )
+    yield appointment
+
 
 class ResponseProcessor(object):
-    
-    
 
     def __init__(self) -> None:
         super().__init__()
@@ -246,3 +235,22 @@ class ResponseProcessor(object):
 def processor():
     processor = ResponseProcessor()
     yield processor
+
+
+class UrlCaller(object):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def get_url(self, operation, **kwargs):
+        # try:
+        return url_for(operation, **kwargs)
+        # except RuntimeError as error:
+        #     logging.exception(error)
+
+
+@pytest.fixture
+def url_caller():
+    url_caller = UrlCaller()
+
+    yield url_caller

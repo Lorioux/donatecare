@@ -75,12 +75,12 @@
       "description": "Access to practitioners free scheduling microservice"
     },
     {
-      "name": "booking",
-      "description": "Access to consultation booking microservice"
-    },
-    {
       "name": "beneficiary",
       "description": "All about heathcare beneficiaries of the co-operative"
+    },
+    {
+      "name": "booking",
+      "description": "Access to consultation booking microservice"
     }
   ],
   "paths": {
@@ -96,7 +96,34 @@
           "content": {
             "application/json": {
               "schema": {
+                "type": "object",
                 "$ref": "#/components/schemas/Member"
+              },
+              "examples": {
+                "practitioner":{
+                  "value":{
+                    "country": "country",
+                    "password": "kjhgFYT+vhbjlhuoifyk3234@",
+                    "role": "doctor",
+                    "phone": "+351 920 300 100",
+                    "email": "jdoe@donatecare.io",
+                    "fullname": "John Doe",
+                    "gender":"female",
+                    "birthdate":"2020-02-03"
+                  }
+                },
+                "beneficiary":{
+                  "value": {
+                    "username":"+351930400391",
+                    "password":"daaEAdaea+SDAs34",
+                    "role":"beneficiary",
+                    "birthdate":"2012/03/26",
+                    "phone":"+351930400391",
+                    "fullname":"Charley de Melo",
+                    "country":"Portugal",
+                    "gender":"Female"
+                  }
+                }
               }
             }
           }
@@ -129,58 +156,31 @@
         ],
         "summary": "Logs user into to access the services",
         "operationId": "authenticate",
-        "parameters": [
-          {
-            "name" : "role",
-            "in": "query",
-            "required": true,
-            "description": "Member registered role",
-            "schema":{
-              "type" : "string",
-              "enum": [
-                "doctor",
-                "beneficiary"
-              ]
-            },
-            "examples": {
-              "role": {
-                "value": "doctor"
-              }
-            }
-          },
-          {
-            "name": "userid",
-            "in": "query",
-            "description": "The user ID for login",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            },
-            "examples": {
-              "userid":{
-                "value": "+351 920 300 100"
-              }
-            }
-          },
-          {
-            "name": "password",
-            "in": "query",
-            "description": "The password for login in clear text",
-            "required": true,
-            "style": "form",
-            "explode": true,
-            "schema": {
-              "type": "string"
-            },
-            "examples": {
-              "password":{
-                "value": "kjhgFYT+vhbjlhuoifyk3234@"
+        "requestBody":{
+          "content": {
+            "application/json":{
+              "schema":{
+                "type": "object"
+              },
+              "examples": {
+                "practitioner":{
+                  "value":{
+                    "password": "kjhgFYT+vhbjlhuoifyk3234@",
+                    "role": "doctor",
+                    "userid": "+351 920 300 100"
+                  }
+                },
+                "beneficiary":{
+                  "value": {
+                    "userid":"+351930400391",
+                    "password":"daaEAdaea+SDAs34",
+                    "role":"beneficiary"
+                  }
+                }
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "successful operation",
@@ -984,7 +984,85 @@
         "x-codegen-request-body-name": "body"
       }
     },
-    "/appoitments/makeAppointment": {
+    "/beneficiary/createProfile": {
+      "post": {
+        "tags": [
+          "beneficiary"
+        ],
+        "summary": "Create a beneficiary entity in the registries",
+        "operationId": "create_beneficiary_profile",
+        "requestBody": {
+          "description": "Beneficiary personal information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Beneficiary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation"
+          },
+          "403": {
+            "description": "Invalid input"
+          }
+        },
+        "security": [
+          {
+            "jwt_auth": [
+              "token"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/beneficiary/updateProfile":{
+      "put": {
+        "deprecated": true,
+        "tags": [
+          "beneficiary_future"
+        ],
+        "summary": "Update beneficiary entity",
+        "operationId": "update_beneficiary_profile",
+        "requestBody": {
+          "description": "Beneficiary information to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Beneficiary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation"
+          },
+          "403": {
+            "description": "Invalid input"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write",
+              "read"
+            ]
+          },
+          {
+            "jwt_auth": [
+              "access_token"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    }
+    ,
+    "/booking/appointments/makeAppointment": {
       "post": {
         "tags": [
           "booking"
@@ -995,7 +1073,7 @@
         "requestBody": {
           "description": "Appointment for consultation",
           "content": {
-            "*/*": {
+            "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/Appointment"
               }
@@ -1186,87 +1264,6 @@
           }
         }
       }
-    },
-    "/beneficiary": {
-      "post": {
-        "tags": [
-          "beneficiary"
-        ],
-        "summary": "Create a beneficiary entity in the registries",
-        "operationId": "create_beneficiary_profile",
-        "requestBody": {
-          "description": "Beneficiary personal information",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Beneficiary"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success operation"
-          },
-          "403": {
-            "description": "Invalid input"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "write",
-              "read"
-            ]
-          },
-          {
-            "jwt_auth": [
-              "access_token"
-            ]
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      },
-      "put": {
-        "deprecated": true,
-        "tags": [
-          "beneficiary_future"
-        ],
-        "summary": "Update beneficiary entity",
-        "operationId": "update_beneficiary_profile",
-        "requestBody": {
-          "description": "Beneficiary information to update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Beneficiary"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success operation"
-          },
-          "403": {
-            "description": "Invalid input"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "write",
-              "read"
-            ]
-          },
-          {
-            "jwt_auth": [
-              "access_token"
-            ]
-          }
-        ],
-        "x-codegen-request-body-name": "body"
-      }
     }
   },
   "components": {
@@ -1320,13 +1317,15 @@
           }
         },
         "example": {
-          "speciality": "Nutritionist",
-          "consultationDate": "2000-01-23T04:56:07.000Z",
-          "complete": false,
-          "practitionerId": "asecaecavav.daddeadaaaa-dasfase4vadasa-dadasscasda",
-          "remarks": "remarks",
-          "beneficiaryId": "mjuujj8388-4-52-2fwfasaa-e3434234242342342-e2332323",
-          "status": "open"
+          "date" : "2021-05-01", 
+          "time" : "12:30",
+          "doctor_name" : "John Doe",
+          "doctor_speciality" : "Nutritionist",
+          "doctor_id" : "mnjkkngv bnnhogivucvghbjnobvhihbjnb hvjhjp-ascasaertrytu74453-35",
+          "beneficiary_phone" : "+351 9200 300 299",
+          "beneficiary_name" : "Marter Riberio",
+          "beneficiary_id" : "fguhiojlbjhjvygifjcvkhj76576789y8gfyctugvhbjo98t90pik-nbgft",
+          "remarks" : "Remarks"
         }
       },
       "Address": {
@@ -1461,17 +1460,7 @@
               "inactive"
             ]
           }
-        },
-        "example": {
-          "country": "country",
-          "password": "kjhgFYT+vhbjlhuoifyk3234@",
-          "role": "doctor",
-          "phone": "+351 920 300 100",
-          "email": "jdoe@donatecare.io",
-          "fullname": "John Doe",
-          "gender":"female",
-          "birthdate":"2020-02-03"
-        }
+        }        
       },
       "License": {
         "required": [
@@ -1534,7 +1523,8 @@
           "fullname",
           "phone",
           "taxid",
-          "addresses"
+          "addresses",
+          "role"
         ],
         "type": "object",
         "properties": {
@@ -1564,24 +1554,28 @@
               "outro"
             ]
           },
-          "address":{
+          "addresses":{
             "$ref": "#/components/schemas/Address"
+          },
+          "role":{
+            "type": "string"
           }
         },
         "example": {
           "addresses": [{
-            "number": "50 RC-ESQ",
+            "doornumber": "50 RC-ESQ",
             "country": "Portugal",
             "city": "Oeiras",
-            "street": "Av. Carolina Michaelis",
+            "streetname": "Av. Carolina Michaelis",
             "state": "Lisbon",
-            "postalCode": "2795-040"
+            "zipcode": "2795-040"
           }],
           "birthdate":"2021-06-03",
           "gender": "Female",
           "fullname":"Charlin Lopez",
           "phone":"+351 920 400 100",
-          "taxid":"234M34MN3-32424-F"
+          "taxid":"234M34MN3-32424-F",
+          "role":"beneficiary"
         }
       },
       "Practitioner": {
