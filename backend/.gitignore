@@ -4,4 +4,10 @@
 .pytest_cache
 
 .venv
-__pycache__
+.venvx
+
+.logs
+__pycache__/**
+hadolint
+migrations
+htmlcov

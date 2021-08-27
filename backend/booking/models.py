@@ -1,11 +1,15 @@
 from __future__ import absolute_import
 
-from sqlalchemy import Column, Integer, String
+import logging
+from flask.globals import session
 
-# import sys
-# sys.path.append("..")
+from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.sql.schema import UniqueConstraint
+from sqlalchemy.sql.sqltypes import Date, Time
 
 from backend import dbase, initializer
+
+session = dbase.session
 
 
 class Appointment(dbase.Model):
@@ -14,26 +18,48 @@ class Appointment(dbase.Model):
     __bind_key__ = "booking"
 
     id = Column(Integer, primary_key=True)
-    date = Column(String(8))
-    time = Column(String(5))
-    doctName = Column(String(55))
-    doctSpeciality = Column(String(55))
-    doctIdentity = Column(String(128))
-    doctAddress = Column(String(128))
-    beneficiaryName = Column(String(55))
-    beneficiaryPhone = Column(String(12))
-    beneficiaryNif = Column(String(128))
+    date = Column(Date)
+    time = Column(Time)
+    doctor_name = Column(String(55))
+    doctor_speciality = Column(String(55))
+    doctor_identity = Column(Text)
+    beneficiary_name = Column(String(55))
+    beneficiary_phone = Column(String(55))
+    beneficiary_identity = Column(Text)
+    remarks = Column(Text)
+
+    UniqueConstraint('beneficiary_id','date','time', name='unique_appointmt')
 
     def __init__(self, **kwargs):
         self.date = initializer("date", kwargs)
         self.time = initializer("time", kwargs)
-        self.doctName = initializer("doctName", kwargs)
-        self.doctSpeciality = initializer("doctSpeciality", kwargs)
-        self.doctIdentity = initializer("doctIdentity", kwargs)
-        self.beneficiaryName = initializer("beneficiaryName", kwargs)
-        self.beneficiaryPhone = initializer("beneficiaryPhone", kwargs)
-        self.beneficiaryNif = initializer("beneficiaryNif", kwargs)
+        self.doctor_name = initializer("doctor_name", kwargs)
+        self.doctor_speciality = initializer("doctor_speciality", kwargs)
+        self.doctor_identity = initializer("doctor_id", kwargs)
+        self.beneficiary_name = initializer("beneficiary_name", kwargs)
+        self.beneficiary_phone = initializer("beneficiary_phone", kwargs)
+        self.beneficiary_identity = initializer("beneficiary_id", kwargs)
+        self.remarks = initializer("remarks", kwargs)
+
 
     def save(self):
-        dbase.session.add(self)
-        dbase.session.commit()
+        
+        try:
+            session.add(self)
+            session.commit()
+            return self
+        except RuntimeError as error:
+            logging.exception(error)
+        
+    def getby_beneficiaryId(self, identity: int = None):
+        if identity is not None:
+            beneficiary = self.query.filter(Appointment.beneficiary_id.ilike(identity))
+            return beneficiary
+        return None
+
+    def getby_beneficiaryName(self, name: str = None):
+        if name is not None:
+           beneficiary = self.query.filter(Appointment.beneficiary_name.ilike(name))
+           return beneficiary
+        return None
+

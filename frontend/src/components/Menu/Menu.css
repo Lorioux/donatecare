@@ -1,0 +1,200 @@
+:root {
+
+    /*PAGE SIDES PAD*/
+    --page-main-padding: 5% !important; 
+
+    --menu-block-width: 1200px !important;
+    --menu-block-align: center;
+    --menu-block-height: fit-content !important;
+    --menu-block-ginicolor: whitesmoke;
+    --menu-height: fit-content !important;
+
+    /*MENU ELEMENT */
+    --menu-backgound-color: lightslategray;
+
+
+    /*MENU ACTION */
+    --menu-action-width : 100% !important;
+    --menu-action-min-width: fit-content;
+    --menu-action-max-width: fit-content;
+    --menu-action-height: 56px !important;
+    --menu-action-border: 4px solid lightskyblue;
+    --menu-action-TRL-border: 1px solid lightskyblue;
+    
+    --menu-action-margin: 4px !important;
+    --menu-action-padding: 10px !important;
+    --menu-icon-visibility: hidden;
+    --menu-icon-display: none;
+
+    /* MENU ACTIONS */
+    --menu-actions-visibility: visible;
+    --menu-actions-display: flex;
+    --menu-actions-dir: row;
+    --menu-actions-close: none;
+    --menu-icon-zindex: 1;
+    --menu-actions-zindex: 1;
+    --menu-num-actions : 3;
+    --menu-actions-width: 100% !important;
+    --menu-actions-min-height: fit-content;
+    --menu-actions-padding: 0px 0px 56px 0px;
+    --menu-actions-mobile-display: {
+        flex-direction: column;
+        padding: 0px 0px 56px 0px;
+    };
+
+}
+
+@media screen and (min-width: 701px) {
+    :root {
+        --menu-action-width: 30% !important;
+        --menu-action-height: 26px !important;
+        --menu-backgound-color: transparent !important;
+        --menu-action-border: transparent;
+        --menu-action-bradious: 6px 6px 0px 0px;
+        --menu-action-max-width: fit-content;
+        /* MENU ACTIONS */
+        --menu-actions-width: fit-content;
+        --menu-actions-dir: "row";
+
+        --menu-icon-zindex: 0;
+        --menu-actions-zindex: 0;
+
+        /* MENU CLOSE BUTTON */
+        --menu-actions-close: none;
+    }    
+}
+
+@media screen and (max-width: 700px) {
+    :root {
+        /* MENU BLOCK */
+        --menu-block-align: inherit;
+
+        --menu-icon-visibility: visible;
+        --menu-actions-visibility: hidden;
+        --menu-action-max-width: 100% !important;
+        --menu-action-width: var(--menu-action-max-width);
+        --menu-action-bradious: 0px;
+        --menu-action-TRL-border: 0px;
+
+        /* Change menu-icon layer index to (2) and menu-actions layer index to -1 */
+        --menu-icon-zindex: 0;
+        --menu-actions-zindex: 0;
+
+        /*Menu icon and actions */
+        --menu-actions-dir: column;
+        --menu-actions-close: inline-block;
+        --menu-actions-min-height: 100vh;
+
+        /* MENU CLOSE BUTTON */
+        --menu-actions-close: inline-block;
+    }
+    .signInAction > FontAwesomeIcon {
+        display: none;
+    }
+    
+}
+
+.logo {
+    width: 96px;
+    height: 36px;
+    font-weight: 900;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    position: relative;
+    margin-top: 8px !important;
+    justify-self: flex-start;
+}
+
+.menuBlock {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    max-width: var(--menu-block--width);
+    height: var(--menu-block-height);
+    visibility: var(--menu-block-visibility);
+    justify-items: flex-end;
+    align-self: var(--menu-block-align);
+    padding: 26px;
+    background: var(--menu-backgound-color); /*linear-gradient(var(--menu-block-ginicolor),*/
+}
+
+menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: max-content !important;
+    /* background-color: var(--menu-backgound-color); */
+    margin: 0;
+    height: var(--menu-height);
+    padding-right: var(--page-main-padding);
+}
+
+.menuIcon {
+    width: fit-content;
+    height: 36px;
+    border: 1px solid lightskyblue;
+    color: lightskyblue;
+    background-color: lightslategray;
+    text-align: center;
+    margin: var(--menu-action-margin);
+    padding: var(--menu-action-padding);
+    visibility: var(--menu-icon-visibility);
+    font-weight: 700;
+    border-radius: 6px;
+}
+
+.menuActions {
+    display: var(--menu-actions-display);
+    flex-direction: var(--menu-actions-dir);
+    width: var(--menu-actions-width);
+    min-width: 300px;
+    /* min-height: var(--menu-actions-min-height); */
+    /* animation: 3s ease-in 1s none normal none running slidein; */
+    /* visibility: var(--menu-actions-visibility); */
+    /* position: relative; */
+    z-index: var(--menu-actions-zindex);
+    justify-content: flex-end;
+    padding: var(--menu-actions-padding) ;
+    
+}
+
+.demoCall,
+.guideLines,
+.signInAction, 
+.signUpAction, .menuCloseAction {
+ /** */
+    /* width:var(--menu-action-width); */
+    height: var(--menu-action-height);
+    font-size: 18px;
+    margin: var(--menu-action-margin);
+    padding: var(--menu-action-padding);
+    color: whitesmoke;
+}
+
+.menuAction {
+    min-width: max-content ; /*minmax(var(--menu-action-min-width), fit-content)*/
+    max-width: var(--menu-action-max-width);
+    border-bottom: var(--menu-action-border);
+    border-top: var(--menu-action-TRL-border);
+    border-right: var(--menu-action-TRL-border);
+    border-left: var(--menu-action-TRL-border);
+    border-radius: var(--menu-action-bradious);
+    /* justify-self: right; */
+    text-align: start;
+    padding-top: 10px;
+    /* background-color: lightgray; */
+}
+
+.menuCloseAction {
+    /* width:var(--menu-action-width); */
+    display: var(--menu-actions-close);
+}
+
+.menuActionsMobile {
+    flex-direction: var(--menu-actions-dir);
+}
+
+
+@keyframes MenuIconResizing {
+    
+}
