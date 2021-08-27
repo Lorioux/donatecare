@@ -1,0 +1,88 @@
+:root {
+    --search-input-width: 30%;
+    --search-input-height: 36px;
+    --search-input-flex: var(--search-input-width);
+    --search-submit-width: fit-content;
+    --search-orientation: row;
+    --search-form-width: 100% !important;
+    --search-submit-min-width: var(--search-submit-width);
+
+    --search-max-width: 700px
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --search-input-width: 80% !important;
+        --search-input-flex: var(--search-input-height);
+        --search-orientation: column;
+        --search-in-grow: 1;
+        --search-form-width: 100% !important;
+        /* --search-submit-min-width: var(--search-input-width); */
+        --search-submit-min-width: 100%
+    }
+}
+
+.searchForm {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: var(--search-orientation);
+    width: var(--search-form-width);
+    max-width: var(--search-max-width);
+}
+
+.searchForm > input[type='text'] {
+    height: var(--search-input-height);
+    background-color: lightgray;
+    flex: var(--search-input-flex);
+    padding: 6px;
+    margin: 8px 16px 8px;
+    border-radius: 4px;
+    border: 1px solid lightblue;
+    /* flex-grow: var(--search-in-grow); */
+    min-width: 256px;
+}
+
+.searchBtn {
+    height: 36px;
+    background-color: lightgray;
+    flex: var(--search-submit-width);
+    min-width: var(--search-submit-min-width);
+    padding: 6px;
+    margin: 8px 16px 8px;
+    border-radius: 4px;
+    border: 1px solid lightblue;       
+}
+
+.searchBlock {
+    padding: 32px;
+    align-items: center;
+}
+
+.practitionerCard {
+    border: 1px solid lightblue;
+    margin: 16px;
+    width: minmax(90px, auto)
+}
+
+.cardDetails {
+    display: grid;
+    grid-Template-Columns: minmax(128px, 256px);
+    grid-Template-Rows: minmax(128px, auto),
+}
+
+.practitionerSummary {
+    display: flex;
+    flex-Wrap: wrap;
+    flex-Direction: column;
+    justify-Content: left; 
+    padding-Left: 10
+}
+
+.consultMode {
+    display: grid;
+    grid-Template-Columns: minmax(56px, 1fr) auto 1fr auto 1fr;
+    grid-Template-Rows: 56px;
+    border-Top: 1px solid lightblue;
+    font-Size: 16px;
+    padding: 4
+}

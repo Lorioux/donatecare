@@ -1,0 +1,79 @@
+:root{
+  --side-width: 1% !important;
+  --main-grid-areas: 
+  "sd mc mc mc mc mc mc mc mc mc mc mc";
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: lightslategray;
+  grid-area: hd;
+  /* position: fixed; */
+  left: 0;
+  top: 0;
+  right: 0;
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+button {
+  font-size: calc(10px + 2vmin);
+}
+
+.App-sidebar {
+  grid-area: sb;
+  /* width: var(--side-width); */
+}
+
+.App-footer {
+  grid-area: ft;
+  display: flex;
+  flex-direction: column;
+  background-color: lightsteelblue;
+  padding: 16px 56px 16px;
+}
+
+.App-content {
+  grid-area: mc;
+  /* display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-areas: var(--main-grid-areas) ; */
+  height: ifr;
+}
+
+.App {
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(256px, auto);
+  grid-template-areas: 
+  "hd hd hd hd hd hd hd hd hd hd hd hd"
+  "mc mc mc mc mc mc mc mc mc mc mc mc"
+  "ft ft ft ft ft ft ft ft ft ft ft ft" ;
+  background: linear-gradient(#ffffff, #d6d0d0);
+
+}

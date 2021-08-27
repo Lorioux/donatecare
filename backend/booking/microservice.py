@@ -1,15 +1,17 @@
 from __future__ import absolute_import
+from functools import wraps
 
-from flask import Blueprint, request, jsonify
-from flask.globals import current_app, g
-from flask.helpers import url_for
-from sqlalchemy.orm import query
+import jwt
+from flask import Blueprint, request, jsonify, json
+from flask.globals import current_app, g, session
+from flask.helpers import make_response, url_for
 from werkzeug.utils import redirect
 
-from backend.booking.models import Appointment
-from backend.registration.models import Beneficiary
 
-bookings = Blueprint("booking", __name__, url_prefix="/booking")
+from backend import Beneficiary, Appointment, Subscriber
+from backend.authentication.microservice import retrieve_subscriber
+
+bookings = Blueprint("booking", __name__, url_prefix="/v1/booking")
 
 
 @bookings.route("/")
@@ -44,26 +46,87 @@ def booking():
     )
 
 
-@bookings.route("/makeAppointment", methods=["POST", "GET"])
-def make_appointment():
-    data = {}
+def require_registration(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        # chechen if token was provided
+        token = request.cookies.get('token')
 
-    # beneficiary = data['beneficiary']
+        try:
+            
+            # appointment = session.get('appointment_info')
+            
+            if not token:
+            # save user session into user 
+                data  = json.loads(request.args.to_dict().get('data'))
+                session['appointment_info'] = data
+                
+                raise PermissionError
+
+            payload = jwt.decode(token, current_app.secret_key, algorithms="HS256")
+            beneficiary = retrieve_subscriber(data=payload)
+
+            return f(beneficiary, *args, **kwargs)
+
+        except KeyError as error:
+            data  = json.loads(request.data)
+            session['appointment_info'] = data
+            return make_response({"Error":"Subscription or login required 1"}, 401)
+        except PermissionError:
+            
+            return make_response({"Error":"Subscription or login required 2"}, 401)
+        
+
+    return decorator
+
+
+
+@bookings.route("/appointments/makeAppointment", methods=["POST"])
+@require_registration
+def make_appointment(beneficiary: Subscriber=None, appointment: dict=None):
+
+    if beneficiary.role not in ["beneficiary", "caregiver"]:
+        return make_response({"Error": "Not authorized", "message": "Only beneficiaries or care givers are allowed to make appointments."}, 403)
+    data = appointment
+    if data is None or data is {}:
+        data = request.get_json()
     # check if beneficiary is already registered
+    
 
-    beneficiary = Beneficiary.query.all()
+    keys, valid = validate_appointment_entries(data)
+    if not valid:
+        
+        return make_response({"Error": "Provided invalid data", "message":f"Supported entries are: {keys}"}, 403)
+    
+    
+    appointmt = Appointment(
+            date = data['date'], 
+            time = data['time'],
+            doctor_name = data['doctor_name'],
+            doctor_speciality = data['doctor_speciality'],
+            doctor_id = data['doctor_id'],
+            beneficiary_phone = data['beneficiary_phone'],
+            beneficiary_name = data['beneficiary_name'],
+            beneficiary_id = data['beneficiary_id'],
+            remarks = data['remarks']
+    )
+    
+    if appointmt.save():
+        return make_response({"message": "Appointment made successfully"})
+    return make_response({"Error": "Failed to fulfill the requested operation"})
 
-    if beneficiary:
-        # register appointment
-        # appointment = Appointment(
-        #     date=data.date, slot=data.time,
-        #     doctorName=data.doctor, doctSpeciality=data.speciality,
-        #     beneficiaryName=data.myName, beneficiaryPhone=data.beneficiaryPhone,
-        #     beneficiaryNIF=data.beneficiaryNIF )
-        # dbase.session_add(Appointment)
-        return jsonify({"query": beneficiary[0].fullname})
-    return redirect(url_for(".subscribe", method="GET"))
 
+def validate_appointment_entries(appointmt: dict):
+    keys = {
+        "date", 
+        "time",
+        "doctor_name",
+        "doctor_speciality",
+        "doctor_id",
+        "beneficiary_phone",
+        "beneficiary_name",
+        "beneficiary_id",
+        "remarks"
+    }
 
-# if __name__ == '__main__':
-#     app.run('0.0.0.0', port=5001,debug=True)
+    return keys, set(appointmt.keys()).difference(keys) == set()

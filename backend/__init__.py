@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 
-from .databases.config import *
-from .booking.models import *
-from .registration.models import *
-from .scheduling.models import *
+from backend.databases.config import *
+from backend.booking.models import *
+from backend.registration.models import *
+from backend.scheduling.models import *
+from backend.authentication.models import *
+from backend.authentication import token_required
+from backend import settings

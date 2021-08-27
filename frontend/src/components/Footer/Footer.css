@@ -1,0 +1,38 @@
+
+:root {
+    --sections-width: 50% !important
+}
+
+.ftheadear {
+    grid-area: hd;
+}
+
+.ftsidebar {
+    grid-area: sd;
+}
+
+.ftcontent {
+    grid-area: main;
+}
+
+.ftfooter {
+    grid-area: ft;
+}
+
+.Wrapper {
+    display: grid;
+    grid-template-columns: (2, 1fr);
+}
+
+.messagingChannel, .postingChannel {
+    flex: var(--sections-width);
+}
+input{
+    height: 36px;
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --sections-width: 100% !important
+    }
+}
